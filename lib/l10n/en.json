@@ -1,0 +1,12 @@
+{
+    "login_title": "Yoga Center",
+    "login_prompt": "Please Log In",
+    "username_hint": "User Name",
+    "password_hint": "Password",
+    "login_button": "Log In",
+    "login_failed": "Login Failed! Please try again.",
+    "enter_username": "Enter User Name",
+    "enter_password": "Enter User password",
+    "powered_by": "Powered By"
+  }
+  
