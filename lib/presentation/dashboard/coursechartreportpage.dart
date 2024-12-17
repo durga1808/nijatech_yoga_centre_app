@@ -148,6 +148,24 @@ void _prepareChartData() {
   });
 }
 
+
+// void _prepareChartData() {
+
+//   final Map<String, int> courseOccurrenceMap = {};
+
+//   for (var report in model.message ?? []) {
+//     final courseName = report?.coursename ?? 'Unknown';
+//     final occurrence = (report?.occurance ?? 0) as int; 
+//     courseOccurrenceMap[courseName] = (courseOccurrenceMap[courseName] ?? 0) + occurrence;
+//   }
+
+ 
+//   setState(() {
+//     chartData = courseOccurrenceMap.entries
+//         .map((entry) => ChartData(entry.key, entry.value))
+//         .toList();
+//   });
+// }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
