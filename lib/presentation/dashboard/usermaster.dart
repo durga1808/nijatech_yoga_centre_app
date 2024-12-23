@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:nijatech_yoga_centre_app/data/api_service.dart';
-import 'package:nijatech_yoga_centre_app/presentation/dashboard/addnewuser.dart';
-
 import 'dart:convert';
-
+import 'package:nijatech_yoga_centre_app/presentation/dashboard/addnewuser.dart';
+import 'package:nijatech_yoga_centre_app/data/api_service.dart';
 import 'package:nijatech_yoga_centre_app/presentation/model/usermodel.dart';
+import 'package:nijatech_yoga_centre_app/presentation/util/Appconstatnts.dart';
 import 'package:nijatech_yoga_centre_app/presentation/util/appcolor.dart';
-
 
 class UserMaster extends StatefulWidget {
   @override
@@ -52,17 +50,55 @@ class _UserMasterState extends State<UserMaster> {
         setState(() {
           isLoading = false;
         });
+        _showSnackBar('Failed to load users');
       }
     } catch (error) {
       setState(() {
         isLoading = false;
       });
+      _showSnackBar('Error loading users. Please try again.');
+    }
+  }
+
+  Future<void> _deleteUserMasterId(int id, String username, int index) async {
+    setState(() => isLoading = true);
+    try {
+      final url =
+          Uri.parse(AppConstants.LOCAL_URL + AppConstants.deleteUserMasterId);
+
+      final response = await http.delete(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: json.encode({
+          'id': id.toString(),
+          'username': username,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['status'] == true) {
+          setState(() => users.removeAt(index));
+          _showSnackBar(data['message'] ?? 'Username deleted successfully.');
+        } else {
+          _showSnackBar(data['message'] ?? 'Failed to delete username.');
+        }
+      } else {
+        _showSnackBar('Server error. Failed to delete Username.');
+      }
+    } catch (error) {
+      print("Error deleting user: $error");
+      _showSnackBar('Error deleting user. Check your connection.');
+    } finally {
+      setState(() => isLoading = false);
     }
   }
 
   Future<void> _updateUserStatus(
       int userId, int currentStatus, int index) async {
-    int newStatus = (currentStatus == 1) ? 0 : 1;
+    int newStatus = (currentStatus == 1)
+        ? 0
+        : 1; // Assuming status 1 = Active, 0 = Inactive
     int originalStatus = users[index].status ?? 0;
 
     setState(() {
@@ -70,19 +106,13 @@ class _UserMasterState extends State<UserMaster> {
     });
 
     try {
-      print("Sending update request for userId: $userId, status: $newStatus");
-
       final response = await Apiservice.getupdateUserStatus({
         'userId': userId.toString(),
         'status': newStatus.toString(),
       });
 
-      print("Response status: ${response.statusCode}");
-      print("Response body: ${response.body}");
-
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-
         if (data['status'] == true) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Status updated successfully')),
@@ -105,7 +135,6 @@ class _UserMasterState extends State<UserMaster> {
       }
     } catch (error) {
       print("Error updating user status: $error");
-
       setState(() {
         users[index].status = originalStatus;
       });
@@ -114,6 +143,11 @@ class _UserMasterState extends State<UserMaster> {
             content: Text('Error updating status. Check your connection.')),
       );
     }
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -126,8 +160,10 @@ class _UserMasterState extends State<UserMaster> {
             iconSize: 25,
             icon: const Icon(Icons.add),
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => AddNewUser()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AddNewUser()),
+              );
             },
           ),
         ],
@@ -146,7 +182,10 @@ class _UserMasterState extends State<UserMaster> {
                       DataColumn(label: Text('Email ID')),
                       DataColumn(label: Text('Password')),
                       DataColumn(label: Text('Superuser')),
+                      DataColumn(label: Text('Country Code')),
+                      DataColumn(label: Text('Phone No')),
                       DataColumn(label: Text('Status')),
+                      DataColumn(label: Text('Actions')),
                     ],
                     rows: users
                         .asMap()
@@ -157,10 +196,12 @@ class _UserMasterState extends State<UserMaster> {
                               DataCell(Text(user.id.toString())),
                               DataCell(Text(user.username ?? '')),
                               DataCell(Text(user.mailid ?? '')),
-                              DataCell(Text(user.userpassword.toString())),
+                              DataCell(
+                                  Text(user.userpassword.toString() ?? '')),
                               DataCell(
                                   Text(user.issuperuser == 1 ? 'Yes' : 'No')),
-                              // DataCell(Text(user.status == 0 ? 'Active' : 'Inactive')),
+                              DataCell(Text(user.countrycode.toString())),
+                              DataCell(Text(user.phoneno ?? '')),
                               DataCell(
                                 Switch(
                                   value: user.status == 0,
@@ -170,6 +211,19 @@ class _UserMasterState extends State<UserMaster> {
                                   },
                                   activeColor: AppColor.primary,
                                   inactiveThumbColor: Colors.red,
+                                ),
+                              ),
+                              DataCell(
+                                IconButton(
+                                  icon: const Icon(Icons.delete,
+                                      color: AppColor.primary),
+                                  onPressed: () {
+                                    if (user.id != null &&
+                                        user.username != null) {
+                                      _deleteUserMasterId(
+                                          user.id!, user.username!, index);
+                                    }
+                                  },
                                 ),
                               ),
                             ]),

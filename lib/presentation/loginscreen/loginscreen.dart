@@ -1,17 +1,16 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:nijatech_yoga_centre_app/data/api_service.dart';
 import 'package:nijatech_yoga_centre_app/l10n/localization.dart';
 import 'package:nijatech_yoga_centre_app/main.dart';
 import 'package:nijatech_yoga_centre_app/presentation/dashboard/admindashboardscreen.dart';
 import 'package:nijatech_yoga_centre_app/presentation/dashboard/dashboardscreen.dart';
+import 'package:nijatech_yoga_centre_app/presentation/dashboard/register.dart';
 import 'package:nijatech_yoga_centre_app/presentation/model/loginmodel.dart';
 import 'package:nijatech_yoga_centre_app/presentation/util/app_util.dart';
 import 'package:nijatech_yoga_centre_app/presentation/util/appcolor.dart';
 import 'package:nijatech_yoga_centre_app/presentation/util/curveclipper.dart';
 import 'package:nijatech_yoga_centre_app/presentation/util/pref.dart';
-
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -131,34 +130,87 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+Widget _loginCredentials(Size size) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          AppLocalizations.of(context)?.pleaseLogIn ?? 'Please Log In',
+          style: const TextStyle(fontSize: 24),
+        ),
+        SizedBox(height: size.height * 0.03),
+        _inputField(
+            context: context,
+            controller: usernamecontroller,
+            hintText: AppLocalizations.of(context)?.username ?? 'Username',
+            icon: Icons.person),
+        SizedBox(height: size.height * 0.04),
+        _inputField(
+            context: context,
+            controller: passwordcontroller,
+            hintText: AppLocalizations.of(context)?.password ?? 'Password',
+            icon: Icons.lock_outline,
+            obscureText: true),
+        SizedBox(height: size.height * 0.04),
+        _loginButton(context, size),
+        SizedBox(height: size.height * 0.03),
+        _dontHaveAccountSection(context),
+      ],
+    ),
+  );
+}
 
-  Widget _loginCredentials(Size size) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            AppLocalizations.of(context)?.pleaseLogIn ?? 'Please Log In',
-            style: const TextStyle(fontSize: 24),
+Widget _dontHaveAccountSection(BuildContext context) {
+  return Center(
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          AppLocalizations.of(context)?.dontHaveAccount ?? "Don't have an account?",
+          style: const TextStyle(
+            color: Colors.black,
+            fontSize: 16,
           ),
-          SizedBox(height: size.height * 0.03),
-          _inputField(
-              context: context,
-              controller: usernamecontroller,
-              hintText: AppLocalizations.of(context)?.username ?? 'Username',
-              icon: Icons.person),
-          SizedBox(height: size.height * 0.04),
-          _inputField(
-              context: context,
-              controller: passwordcontroller,
-              hintText: AppLocalizations.of(context)?.password ?? 'Password',
-              icon: Icons.lock_outline,
-              obscureText: true),
-          SizedBox(height: size.height * 0.04),
-          _loginButton(context, size),
-          SizedBox(height: size.height * 0.03),
-        ],
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) =>  Register(), 
+            ));
+          },
+          child: Text(
+            AppLocalizations.of(context)?.register ?? 'Register',
+            style: const TextStyle(
+              color: AppColor.primary,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+
+  Widget _registerButton(BuildContext context) {
+    return Center(
+      child: TextButton(
+        onPressed: () {
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) =>  Register(), 
+          ));
+        },
+        child: Text(
+          AppLocalizations.of(context)?.register ?? 'Dont have an account? Register',
+          style: const TextStyle(
+            color: AppColor.primary,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
     );
   }

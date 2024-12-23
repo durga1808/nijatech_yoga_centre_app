@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:nijatech_yoga_centre_app/data/api_service.dart';
-import 'package:nijatech_yoga_centre_app/presentation/dashboard/addnewcourse.dart';
 import 'dart:convert';
-
+import 'package:http/http.dart' as http;
+import 'package:nijatech_yoga_centre_app/presentation/dashboard/addnewcourse.dart';
 import 'package:nijatech_yoga_centre_app/presentation/model/coursemodel.dart';
+import 'package:nijatech_yoga_centre_app/presentation/util/Appconstatnts.dart';
 import 'package:nijatech_yoga_centre_app/presentation/util/appcolor.dart';
-
 
 class CourseMaster extends StatefulWidget {
   @override
@@ -23,37 +23,58 @@ class _CourseMasterState extends State<CourseMaster> {
   }
 
   Future<void> _fetchCourseData() async {
-    // setState(() => isLoading = true);
+    setState(() => isLoading = true);
     try {
-      final response = await Apiservice.getcoursemaster(json);
-
+      final response = await Apiservice.getcoursemaster({});
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         CourseModel courseModel = CourseModel.fromJson(data);
-
         if (courseModel.status == true) {
           setState(() => courses = courseModel.message ?? []);
         } else {
-          print("API Error: ${data['message']}");
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content: Text(data['message'] ?? 'Failed to load courses')),
-          );
+          _showSnackBar(data['message'] ?? 'Failed to load courses');
         }
       } else {
-        print("HTTP Error: ${response.statusCode}");
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Failed to fetch courses. Server error.')),
-        );
+        _showSnackBar('Failed to fetch courses. Server error.');
       }
     } catch (error) {
       print("Error fetching course data: $error");
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content:
-                Text('Error fetching course data. Check your connection.')),
+      _showSnackBar('Error fetching course data. Check your connection.');
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
+
+  Future<void> _deleteCourseMasterId(
+      int id, String coursename, int index) async {
+    setState(() => isLoading = true);
+    try {
+      final url =
+          Uri.parse(AppConstants.LOCAL_URL + AppConstants.deleteCourseMasterId);
+
+      final response = await http.delete(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: json.encode({
+          'id': id.toString(),
+          'coursename': coursename,
+        }),
       );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['status'] == true) {
+          setState(() => courses.removeAt(index));
+          _showSnackBar(data['message'] ?? 'Course deleted successfully.');
+        } else {
+          _showSnackBar(data['message'] ?? 'Failed to delete course.');
+        }
+      } else {
+        _showSnackBar('Server error. Failed to delete course.');
+      }
+    } catch (error) {
+      print("Error deleting course: $error");
+      _showSnackBar('Error deleting course. Check your connection.');
     } finally {
       setState(() => isLoading = false);
     }
@@ -79,33 +100,28 @@ class _CourseMasterState extends State<CourseMaster> {
           setState(() {
             courses[index].status = originalStatus;
           });
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content: Text(data['message'] ?? 'Failed to update status')),
-          );
+          _showSnackBar(data['message'] ?? 'Failed to update status');
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Status updated successfully')),
-          );
+          _showSnackBar('Status updated successfully');
         }
       } else {
         setState(() {
           courses[index].status = originalStatus;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error updating status. Server error')),
-        );
+        _showSnackBar('Error updating status. Server error');
       }
     } catch (error) {
-      print("Error updating user status: $error");
+      print("Error updating course status: $error");
       setState(() {
         courses[index].status = originalStatus;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Error updating status. Check your connection.')),
-      );
+      _showSnackBar('Error updating status. Check your connection.');
     }
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -119,46 +135,56 @@ class _CourseMasterState extends State<CourseMaster> {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => AddNewCourse()),
-              );
+              ).then((value) => _fetchCourseData());
             },
             icon: const Icon(Icons.add),
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: DataTable(
-                  columns: const [
-                    DataColumn(label: Text('Id')),
-                    DataColumn(label: Text('Course Name')),
-                    DataColumn(label: Text('Status')),
-                  ],
-                  rows: List.generate(courses.length, (index) {
-                    final course = courses[index];
-                    return DataRow(cells: [
-                      DataCell(Text(course.id?.toString() ?? '')),
-                      DataCell(Text(course.coursename ?? '')),
-                      DataCell(
-                        Switch(
-                          value: course.status == 0,
-                          onChanged: (isActive) {
-                            if (course.id != null) {
-                              _updateCourseStatus(
-                                  course.id!, course.status ?? 99, index);
-                            }
-                          },
-                          activeColor: AppColor.primary,
-                          inactiveThumbColor: Colors.red,
-                        ),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                columns: const [
+                  DataColumn(label: Text('Id')),
+                  DataColumn(label: Text('Course Name')),
+                  DataColumn(label: Text('Status')),
+                  DataColumn(label: Text('Actions')),
+                ],
+                rows: List.generate(courses.length, (index) {
+                  final course = courses[index];
+                  return DataRow(cells: [
+                    DataCell(Text(course.id?.toString() ?? '')),
+                    DataCell(Text(course.coursename ?? '')),
+                    DataCell(
+                      Switch(
+                        value: course.status == 0,
+                        onChanged: (isActive) {
+                          if (course.id != null) {
+                            _updateCourseStatus(
+                                course.id!, course.status ?? 99, index);
+                          }
+                        },
+                        activeColor: AppColor.primary,
+                        inactiveThumbColor: Colors.red,
                       ),
-                    ]);
-                  }),
-                ),
+                    ),
+                    DataCell(
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: AppColor.primary),
+                        onPressed: () {
+                          if (course.id != null && course.coursename != null) {
+                            _deleteCourseMasterId(
+                                course.id!, course.coursename!, index);
+                          }
+                        },
+                      ),
+                    ),
+                  ]);
+                }),
               ),
-      ),
+            ),
     );
   }
 }

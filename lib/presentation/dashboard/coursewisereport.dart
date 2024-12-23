@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:http/http.dart' as http;
@@ -9,7 +10,10 @@ import 'package:nijatech_yoga_centre_app/presentation/model/usermodel.dart';
 import 'package:nijatech_yoga_centre_app/presentation/util/app_util.dart';
 import 'package:nijatech_yoga_centre_app/presentation/util/appcolor.dart';
 import 'package:nijatech_yoga_centre_app/presentation/util/pref.dart';
-
+import 'package:excel/excel.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:open_file/open_file.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class CourseWiseReport extends StatefulWidget {
   const CourseWiseReport({Key? key}) : super(key: key);
@@ -100,37 +104,6 @@ class _CourseWiseReport extends State<CourseWiseReport> {
     }
   }
 
-  Future<void> getUserListid(String userId, String username) async {
-    var body = {
-      "createdBy": Prefs.getID("UserID"),
-      "userId": userId,
-      "username": username
-    };
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final response = await Apiservice.getUserwiseReportid(body);
-      if (response.statusCode == 200 && response.body.isNotEmpty) {
-        var jsonResponse = jsonDecode(response.body);
-        if (jsonResponse['status'] == true) {
-          userModel = UserModel.fromJson(jsonResponse);
-          setState(() {
-            userList =
-                userModel.message!.map((user) => user.username!).toList();
-            _isLoading = false;
-          });
-        } else {
-          _handleNoData();
-        }
-      }
-    } catch (e) {
-      _handleError(e);
-    }
-  }
-
   Future<void> getCourseReports(
       String courseId, String courseName, String username) async {
     var body = {
@@ -197,16 +170,50 @@ class _CourseWiseReport extends State<CourseWiseReport> {
     );
   }
 
-  // void _handleError(dynamic e) {
-  //   setState(() {
-  //     _isLoading = false;
-  //   });
-  //   AppUtils.showSingleDialogPopup(context, e.toString(), "Ok", exitPopup);
-  // }
+  Future<void> exportToExcel() async {
+    if (model.message == null || model.message!.isEmpty) {
+      AppUtils.showSingleDialogPopup(
+        context,
+        "No data available to export",
+        "Ok",
+        exitPopup,
+      );
+      return;
+    }
 
-  // void exitPopup() {
-  //   AppUtils.pop(context);
-  // }
+    var excel = Excel.createExcel();
+
+    Sheet sheet = excel['Reports'];
+
+    sheet.appendRow(['Course Name', 'Date', 'Occurrence', 'Remarks']);
+
+    for (var report in model.message!) {
+      sheet.appendRow([
+        report.coursename,
+        report.currentdate,
+        report.occurance,
+        report.remarks
+      ]);
+    }
+
+    try {
+      final directory = await getExternalStorageDirectory();
+      final file = File('${directory!.path}/CourseWiseReport.xlsx');
+
+      List<int> bytes = excel.encode()!;
+
+      await file.writeAsBytes(bytes);
+
+      OpenFile.open(file.path);
+    } catch (e) {
+      AppUtils.showSingleDialogPopup(
+        context,
+        "Error while exporting: $e",
+        "Ok",
+        exitPopup,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -253,7 +260,6 @@ class _CourseWiseReport extends State<CourseWiseReport> {
                     onChanged: (value) {
                       setState(() {
                         _selectedUser = value;
-
                         selectedUserId = userModel.message!
                                 .firstWhere(
                                   (user) => user.username == _selectedUser,
@@ -273,31 +279,63 @@ class _CourseWiseReport extends State<CourseWiseReport> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  ElevatedButton.icon(
-                    icon: const Icon(Icons.search, color: Colors.white),
-                    label: const Text(
-                      "Search",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColor.primary,
-                    ),
-                    onPressed: () {
-                      if (selectedCourseId == null || _selectedUser == null) {
-                        AppUtils.showSingleDialogPopup(
-                          context,
-                          "Please select both course and username",
-                          "Ok",
-                          exitPopup,
-                        );
-                      } else {
-                        getCourseReports(
-                          selectedCourseId!,
-                          _selectedCourse!,
-                          _selectedUser!,
-                        );
-                      }
-                    },
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start, 
+                    children: [
+                      ElevatedButton.icon(
+                        icon: const Icon(Icons.search, color: Colors.white),
+                        label: const Text(
+                          "Search",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColor.primary,
+                        ),
+                        onPressed: () {
+                          if (selectedCourseId == null ||
+                              _selectedUser == null) {
+                            AppUtils.showSingleDialogPopup(
+                              context,
+                              "Please select both course and username",
+                              "Ok",
+                              exitPopup,
+                            );
+                          } else {
+                            getCourseReports(
+                              selectedCourseId!,
+                              _selectedCourse!,
+                              _selectedUser!,
+                            );
+                          }
+                        },
+                      ),
+                      SizedBox(width: 15),
+                      ElevatedButton.icon(
+                        icon: const Icon(Icons.file_download,
+                            color: Colors.white),
+                        label: const Text(
+                          "Export to Excel",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColor.primary,
+                        ),
+                        onPressed: () async {
+                          final permissionStatus =
+                              await Permission.storage.status;
+                          if (permissionStatus.isDenied) {
+                            await Permission.storage.request();
+                            if (permissionStatus.isDenied) {
+                              await openAppSettings();
+                            }
+                          } else if (permissionStatus.isPermanentlyDenied) {
+                            await openAppSettings();
+                          } else {
+                            exportToExcel();
+                          }
+                        },
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 20),
                   Expanded(
@@ -335,18 +373,18 @@ class _CourseWiseReport extends State<CourseWiseReport> {
                                       ),
                                       const SizedBox(height: 10),
                                       Text(
-                                        'Occurance: ${report.occurance}',
+                                        'Occurrence: ${report.occurance}',
                                         style: const TextStyle(
+                                          fontSize: 14,
                                           color: Colors.white,
-                                          fontSize: 16,
                                         ),
                                       ),
                                       const SizedBox(height: 10),
                                       Text(
-                                        ' ${report.remarks}',
+                                        'Remarks: ${report.remarks}',
                                         style: const TextStyle(
+                                          fontSize: 14,
                                           color: Colors.white,
-                                          fontSize: 16,
                                         ),
                                       ),
                                     ],
@@ -356,7 +394,7 @@ class _CourseWiseReport extends State<CourseWiseReport> {
                             },
                           )
                         : const Center(
-                            child: Text('No reports available.'),
+                            child: Text("No data available."),
                           ),
                   ),
                 ],

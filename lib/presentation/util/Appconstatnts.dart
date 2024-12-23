@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 class AppConstants {
   //static const String LIVE_URL = 'http://192.168.0.103:3000/YogaApp/';
     //  static const String LOCAL_URL = 'http://nija.ddns.net:93/NewYogaApp/';
+
  static const String LOCAL_URL = 'http://192.168.29.121:3000/YogaApp/';
 // static const String LOCAL_URL = 'http://192.168.31.13:3000/YogaApp/';
   //  static const String LOCAL_URL = 'http://192.168.31.13:3000/YogaApp/';
@@ -17,6 +18,9 @@ class AppConstants {
   static const String addenroll = 'addenroll';
   static const String getSuperenroll = 'getSuperenroll';
   static const String videos ='getuploadvideo';
+  static const String registerUser ='registerUser';
+  static const String checkEmail ='checkEmail';
+  static const String checkPhone ='checkPhone';
   static const String addNewUser ='addNewUser';
   static const String addcoursemaster ='addcoursemaster';
   static const String getcoursemaster = 'getcoursemaster';
@@ -25,6 +29,9 @@ class AppConstants {
   static const String getupdateuserstatus = 'getupdateuserstatus';
   static const String getupadtevideostatus = 'getupadtevideostatus';
   static const String getupadtecoursestatus = 'getupadtecoursestatus';
+  static const String deleteCourseMasterId = 'deleteCourseMasterId';
+  static const String deleteUserMasterId = 'deleteUserMasterId';
+  static const String deleteVideoMasterId = 'deleteVideoMasterId';
   static const String storeEnroll = 'storeEnroll';
   static const String getVideos = 'getVideos';
   static const String addVideoDashboard = 'addVideoDashboard';
@@ -36,6 +43,7 @@ class AppConstants {
   static const String getusermasterreportPage = 'getusermasterreportPage';
   static const String dateWiseReport = 'dateWiseReport';
   static const String monthWiseReport = 'monthWiseReport';
+  static const String allUserWiseReport = 'allUserWiseReport';
   static const String monthWiseReportuser = 'monthWiseReportuser';
   static const String addmyscore = 'addmyscore';
   static const String addmyvideos = 'addmyvideos';

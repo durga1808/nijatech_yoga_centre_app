@@ -18,6 +18,8 @@ class _AddNewUserState extends State<AddNewUser> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _mailController = TextEditingController();
+  final TextEditingController _countrycodeController = TextEditingController();
+  final TextEditingController _phonenocontroller = TextEditingController();
   bool _isSuperUser = false;
 
   Future<void> _submitForm() async {
@@ -27,7 +29,11 @@ class _AddNewUserState extends State<AddNewUser> {
         "username": _usernameController.text,
         "userpassword": _passwordController.text,
         "mailid": _mailController.text,
-        "issuperuser": _isSuperUser ? 1 : 0
+        "issuperuser": _isSuperUser ? 1 : 0,
+        "countrycode": _countrycodeController.text,
+        "phoneno": _phonenocontroller.text
+        
+
       };
 
       print('Payload being sent: ${jsonEncode(userData)}');
@@ -59,6 +65,9 @@ class _AddNewUserState extends State<AddNewUser> {
               _passwordController.clear();
               _mailController.clear();
               _isSuperUser = false;
+              _countrycodeController.clear();
+              _phonenocontroller.clear();
+              
               setState(() {});
             },
           );
@@ -151,6 +160,30 @@ class _AddNewUserState extends State<AddNewUser> {
                   return null;
                 },
               ),
+                  SizedBox(height: 10),
+                  TextFormField(
+                controller: _countrycodeController,
+                decoration: const InputDecoration(
+                    border: OutlineInputBorder(), labelText: 'Country Code'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a Country Code';
+                  }
+                  return null;
+                },
+              ),
+               SizedBox(height: 10),
+                  TextFormField(
+                controller: _phonenocontroller,
+                decoration: const InputDecoration(
+                    border: OutlineInputBorder(), labelText: 'Phone No'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a Phone No';
+                  }
+                  return null;
+                },
+              ),
               CheckboxListTile(
                 title: const Text('Is Super User'),
                 value: _isSuperUser,
@@ -170,6 +203,7 @@ class _AddNewUserState extends State<AddNewUser> {
                 style:
                     ElevatedButton.styleFrom(backgroundColor: AppColor.primary),
               ),
+             
             ],
           ),
         ),

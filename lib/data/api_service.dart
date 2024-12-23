@@ -101,6 +101,60 @@ class Apiservice {
     return response;
   }
 
+  static Future<http.Response> deleteCourseMasterId(
+      Map<String, String> data) async {
+    var url =
+        Uri.parse(AppConstants.LOCAL_URL + AppConstants.deleteCourseMasterId);
+
+    Map<String, String> headers = {"Content-Type": "application/json"};
+
+    var response = await http
+        .delete(
+          url,
+          headers: headers,
+          body: json.encode(data), // Pass the data as JSON encoded
+        )
+        .timeout(const Duration(seconds: timeOutDuration));
+
+    return response;
+  }
+
+  static Future<http.Response> deleteUserMasterId(
+      Map<String, String> data) async {
+    var url =
+        Uri.parse(AppConstants.LOCAL_URL + AppConstants.deleteUserMasterId);
+
+    Map<String, String> headers = {"Content-Type": "application/json"};
+
+    var response = await http
+        .delete(
+          url,
+          headers: headers,
+          body: json.encode(data), // Pass the data as JSON encoded
+        )
+        .timeout(const Duration(seconds: timeOutDuration));
+
+    return response;
+  }
+
+  static Future<http.Response> deleteVideoMasterId(
+      Map<String, String> data) async {
+    var url =
+        Uri.parse(AppConstants.LOCAL_URL + AppConstants.deleteVideoMasterId);
+
+    Map<String, String> headers = {"Content-Type": "application/json"};
+
+    var response = await http
+        .delete(
+          url,
+          headers: headers,
+          body: json.encode(data), // Pass the data as JSON encoded
+        )
+        .timeout(const Duration(seconds: timeOutDuration));
+
+    return response;
+  }
+
   static Future<http.Response> addenrollmaster(
       Map<String, dynamic> body) async {
     var url = Uri.parse(AppConstants.LOCAL_URL + AppConstants.addenroll);
@@ -307,6 +361,34 @@ class Apiservice {
     }
   }
 
+  static Future<http.Response> registerUser(dynamic json) async {
+    var url = Uri.parse(AppConstants.LOCAL_URL + AppConstants.registerUser);
+    Map<String, String> headers = {"Content-Type": "application/json"};
+
+    try {
+      var response = await http
+          .post(url, body: jsonEncode(json), headers: headers)
+          .timeout(const Duration(seconds: 30));
+
+      return response;
+    } catch (e) {
+      print('Error while sending request: $e');
+      rethrow; // Rethrow the exception to handle it in the caller
+    }
+  }
+
+  static Future<dynamic> checkEmail(String email) async {
+    final url = Uri.parse(AppConstants.LOCAL_URL + AppConstants.checkEmail);
+    final response = await http.post(url, body: {'mailid': email});
+    return response;
+  }
+
+  static Future<dynamic> checkPhone(String phone) async {
+    final url = Uri.parse(AppConstants.LOCAL_URL + AppConstants.checkPhone);
+    final response = await http.post(url, body: {'phoneno': phone});
+    return response;
+  }
+
   static Future<http.Response> addNewCourse(dynamic json) async {
     var url = Uri.parse(AppConstants.LOCAL_URL + AppConstants.addcoursemaster);
     Map<String, String> headers = {"Content-Type": "application/json"};
@@ -364,16 +446,30 @@ class Apiservice {
   static Future<http.Response> getmonthwiselist(dynamic json) async {
     var url = Uri.parse(AppConstants.LOCAL_URL + AppConstants.monthWiseReport);
     Map<String, String> headers = {"Content-Type": "application/json"};
-
-    // Pass the body as the request payload
     var response = await http
         .post(
           url,
           headers: headers,
-          body: json, // pass the JSON body here
+          body: json,
         )
         .timeout(const Duration(seconds: timeOutDuration));
 
+    return response;
+  }
+
+  static Future<http.Response> getAllUserWiseReport(
+      Map<String, dynamic> json) async {
+    var url =
+        Uri.parse(AppConstants.LOCAL_URL + AppConstants.allUserWiseReport);
+    Map<String, String> headers = {"Content-Type": "application/json"};
+    String body = jsonEncode(json);
+    var response = await http
+        .post(
+          url,
+          headers: headers,
+          body: body,
+        )
+        .timeout(const Duration(seconds: 30));
     return response;
   }
 

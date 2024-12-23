@@ -5,9 +5,9 @@ import 'package:nijatech_yoga_centre_app/presentation/dashboard/addnewvideo.dart
 import 'dart:convert';
 
 import 'package:nijatech_yoga_centre_app/presentation/model/videomodel.dart';
+import 'package:nijatech_yoga_centre_app/presentation/util/Appconstatnts.dart';
 import 'package:nijatech_yoga_centre_app/presentation/util/app_util.dart';
 import 'package:nijatech_yoga_centre_app/presentation/util/appcolor.dart';
-
 
 class VideoMaster extends StatefulWidget {
   @override
@@ -15,9 +15,7 @@ class VideoMaster extends StatefulWidget {
 }
 
 class _VideoMasterState extends State<VideoMaster> {
-  // List<Message> video = [];
   bool _isLoading = false;
-  // VideoModelMaster videoModel = VideoModelMaster();
   VideoModel videoModel = VideoModel();
   List<Data> video = [];
 
@@ -84,15 +82,10 @@ class _VideoMasterState extends State<VideoMaster> {
     });
 
     try {
-      print("Sending update request for docno: $id, status: $newStatus");
-
       final response = await Apiservice.getupadtevideostatus({
         'id': id.toString(),
         'status': newStatus.toString(),
       });
-
-      print("Response status: ${response.statusCode}");
-      print("Response body: ${response.body}");
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -118,16 +111,51 @@ class _VideoMasterState extends State<VideoMaster> {
         );
       }
     } catch (error) {
-      print("Error updating user status: $error");
-
       setState(() {
         video[index].status = originalStatus;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text('Error updating status. Check your connection.')),
+        SnackBar(content: Text('Error updating status. Check your connection.')),
       );
     }
+  }
+
+  Future<void> _deleteVideoMasterId(int id, String coursename, int index) async {
+    setState(() => _isLoading = true);
+    try {
+      final url =
+          Uri.parse(AppConstants.LOCAL_URL + AppConstants.deleteVideoMasterId);
+
+      final response = await http.delete(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: json.encode({
+          'id': id.toString(),
+          'coursename': coursename,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['status'] == true) {
+          setState(() => video.removeAt(index));
+          _showSnackBar(data['message'] ?? 'Video deleted successfully.');
+        } else {
+          _showSnackBar(data['message'] ?? 'Failed to delete video.');
+        }
+      } else {
+        _showSnackBar('Server error. Failed to delete video.');
+      }
+    } catch (error) {
+      _showSnackBar('Error deleting video. Check your connection.');
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -137,11 +165,14 @@ class _VideoMasterState extends State<VideoMaster> {
         title: const Text('Video Master'),
         actions: [
           IconButton(
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => AddNewVideo()));
-              },
-              icon: Icon(Icons.add)),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AddNewVideo()),
+              );
+            },
+            icon: const Icon(Icons.add),
+          ),
         ],
       ),
       body: SingleChildScrollView(
@@ -158,26 +189,40 @@ class _VideoMasterState extends State<VideoMaster> {
                       DataColumn(label: Text('Video URL')),
                       DataColumn(label: Text('Description')),
                       DataColumn(label: Text('Status')),
+                      DataColumn(label: Text('Actions')),
                     ],
                     rows: video
                         .asMap()
-                        .map((index, message) {
+                        .map((index, videoData) {
                           return MapEntry(
                             index,
                             DataRow(cells: [
-                              DataCell(Text(message.id?.toString() ?? '')),
-                              DataCell(Text(message.coursename ?? '')),
-                              DataCell(Text(message.youtubelink ?? '')),
-                              DataCell(Text(message.content ?? '')),
+                              DataCell(Text(videoData.id?.toString() ?? '')),
+                              DataCell(Text(videoData.coursename ?? '')),
+                              DataCell(Text(videoData.youtubelink ?? '')),
+                              DataCell(Text(videoData.content ?? '')),
                               DataCell(
                                 Switch(
-                                  value: message.status == 0,
+                                  value: videoData.status == 0,
                                   onChanged: (bool isActive) {
-                                    _updateVideoStatus(message.id!,
-                                        message.status ?? 99, index);
+                                    _updateVideoStatus(videoData.id!,
+                                        videoData.status ?? 99, index);
                                   },
                                   activeColor: AppColor.primary,
                                   inactiveThumbColor: Colors.red,
+                                ),
+                              ),
+                              DataCell(
+                                IconButton(
+                                  icon: const Icon(Icons.delete,
+                                      color: AppColor.primary),
+                                  onPressed: () {
+                                    if (videoData.id != null &&
+                                        videoData.coursename != null) {
+                                      _deleteVideoMasterId(
+                                          videoData.id!, videoData.coursename!, index);
+                                    }
+                                  },
                                 ),
                               ),
                             ]),

@@ -38,6 +38,7 @@ class User {
   String? maritalstatus;
   String? mailid;
   String? phoneno;
+  int? countrycode;
   String? emergencycontactperson;
   String? emergencycontactno;
   int? status;
@@ -58,6 +59,7 @@ class User {
       this.maritalstatus,
       this.mailid,
       this.phoneno,
+      this.countrycode,
       this.emergencycontactperson,
       this.emergencycontactno,
       this.status, required String mobile});
@@ -78,6 +80,7 @@ class User {
     maritalstatus = json['maritalstatus'];
     mailid = json['mailid'];
     phoneno = json['phoneno'];
+    countrycode = json['countrycode'];
     emergencycontactperson = json['emergencycontactperson'];
     emergencycontactno = json['emergencycontactno'];
     status = json['status'];
@@ -100,6 +103,7 @@ class User {
     data['maritalstatus'] = this.maritalstatus;
     data['mailid'] = this.mailid;
     data['phoneno'] = this.phoneno;
+    data['countrycode'] = this.countrycode;
     data['emergencycontactperson'] = this.emergencycontactperson;
     data['emergencycontactno'] = this.emergencycontactno;
     data['status'] = this.status;

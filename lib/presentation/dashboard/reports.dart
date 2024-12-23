@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:nijatech_yoga_centre_app/presentation/dashboard/alluserwisereport.dart';
 import 'package:nijatech_yoga_centre_app/presentation/dashboard/coursewisereport.dart';
 import 'package:nijatech_yoga_centre_app/presentation/dashboard/monthwisereport.dart';
 
@@ -24,7 +25,7 @@ class _ReportsState extends State<Reports> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
                   child: _buildCardWithButton(
@@ -48,6 +49,19 @@ class _ReportsState extends State<Reports> {
                     ),
                     label: 'Month Report',
                     onPressed: () => _NavigateToMonthWiseReport(),
+                    buttonColor: const Color(0xFFEAECFB),
+                  ),
+                ),
+                   const SizedBox(width: 5),
+                Expanded(
+                  child: _buildCardWithButton(
+                    icon: Image.asset(
+                      "assets/images/usermaster.png",
+                      height: 36,
+                      width: 36,
+                    ),
+                    label: 'User Reports',
+                    onPressed: () => _NavigateAllUserWiseReport(),
                     buttonColor: const Color(0xFFEAECFB),
                   ),
                 ),
@@ -116,6 +130,11 @@ class _ReportsState extends State<Reports> {
   }
    void _NavigateToMonthWiseReport() {
     Navigator.push(context, MaterialPageRoute(builder: (context) => const MonthWiseReport(),
+    ),
+    );
+   }
+      void _NavigateAllUserWiseReport() {
+    Navigator.push(context, MaterialPageRoute(builder: (context) =>  AllUserWiseReport(),
     ),
     );
    }
