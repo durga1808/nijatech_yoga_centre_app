@@ -23,12 +23,11 @@ class AllUserWiseReport extends StatefulWidget {
 
 class _AllUserWiseReportState extends State<AllUserWiseReport> {
   String? _selectedMonth;
+  String? _selectedUser;
   int? _selectedYear;
   late UserModel userModel;
   AllUserModel allUserModel = AllUserModel();
   bool _isLoading = false;
-  bool _selectAllUsers = false;
-  String? _selectedUser;
 
   List<String> userList = [];
   final List<String> months = List.generate(
@@ -56,11 +55,12 @@ class _AllUserWiseReportState extends State<AllUserWiseReport> {
         if (jsonResponse['status'] == true) {
           userModel = UserModel.fromJson(jsonResponse);
           setState(() {
-            userList = userModel.message
+            userList = ["All Users"];
+            userList.addAll(userModel.message
                     ?.where((user) => user.status == 0)
                     .map((user) => user.username!)
                     .toList() ??
-                [];
+                []);
           });
         } else {
           _showSnackBar("No data found");
@@ -97,7 +97,8 @@ class _AllUserWiseReportState extends State<AllUserWiseReport> {
     }
   }
 
-  Future<void> _fetchMonthlyReport(int year, String month, List<String> usernames) async {
+  Future<void> _fetchMonthlyReport(
+      int year, String month, String username) async {
     setState(() => _isLoading = true);
 
     int monthNumber = months.indexOf(month) + 1;
@@ -105,11 +106,14 @@ class _AllUserWiseReportState extends State<AllUserWiseReport> {
       "createdBy": Prefs.getID("UserID"),
       "year": year.toString(),
       "month": monthNumber.toString().padLeft(2, '0'),
-      "username": _selectAllUsers ? "" : usernames.join(","),
     };
 
+    if (username != "All Users") {
+      body["username"] = username;
+    }
+
     try {
-      final response = await Apiservice.getAllUserWiseReport(body);
+      final response = await Apiservice.getmonthWiseReportuser(body);
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
         if (jsonResponse['status'] == true) {
@@ -137,20 +141,86 @@ class _AllUserWiseReportState extends State<AllUserWiseReport> {
     }
 
     var excelFile = excel.Excel.createExcel();
-    excel.Sheet sheet = excelFile['Reports'];
-    sheet.appendRow(['PhoneNo', 'Course Name', 'Date', 'Occurrence', 'Remarks']);
+    excel.Sheet sheet = excelFile['AllUserReports'];
 
+
+    Set<String> uniqueDatesSet = {};
     for (var report in allUserModel.message!) {
-      String formattedDate = report?.date != null
-          ? DateFormat("dd/MM/yyyy").format(report!.date!)
-          : "N/A";
-      sheet.appendRow([report?.phoneno ?? "N/A", report?.coursename ?? "N/A", formattedDate, report?.occurance ?? "N/A", report?.remarks ?? "N/A"]);
+      if (report?.date != null) {
+        String formattedDate = DateFormat("dd/MM/yyyy").format(report!.date!);
+        uniqueDatesSet.add(formattedDate);
+      }
     }
 
+   
+    List<String> uniqueDates = uniqueDatesSet.toList();
+    uniqueDates.sort((a, b) => a.compareTo(b));
+
+
+    List<dynamic> headerRow = ['PhoneNo'] + uniqueDates;
+
+    
+    var headerStyle = excel.CellStyle(
+      backgroundColorHex: "#FFC000",
+      fontColorHex: "#000000",
+      bold: true, 
+    );
+
+  
+    for (int col = 0; col < headerRow.length; col++) {
+      var cell = sheet.cell(
+          excel.CellIndex.indexByColumnRow(columnIndex: col, rowIndex: 0));
+      cell.value = headerRow[col];
+      cell.cellStyle = headerStyle; 
+    }
+
+   
+    Map<String, Map<String, int>> phoneDataMap = {};
+
+    for (var report in allUserModel.message!) {
+      if (report?.phoneno != null && report?.date != null) {
+        String phoneNo = report!.phoneno!;
+        String formattedDate = DateFormat("dd/MM/yyyy").format(report!.date!);
+
+        if (!phoneDataMap.containsKey(phoneNo)) {
+          phoneDataMap[phoneNo] = {};
+        }
+
+        if (!phoneDataMap[phoneNo]!.containsKey(formattedDate)) {
+          phoneDataMap[phoneNo]![formattedDate] = 0;
+        }
+
+        phoneDataMap[phoneNo]![formattedDate] =
+            (phoneDataMap[phoneNo]![formattedDate] ?? 0) +
+                (report.occurance ?? 0);
+      }
+    }
+
+   
+    int currentRow = 1; 
+    for (var phoneNo in phoneDataMap.keys) {
+      List<dynamic> row = [phoneNo];
+
+      for (var date in uniqueDates) {
+        row.add(phoneDataMap[phoneNo]?[date] ?? 0);
+      }
+
+      for (int col = 0; col < row.length; col++) {
+        var cell = sheet.cell(excel.CellIndex.indexByColumnRow(
+            columnIndex: col, rowIndex: currentRow));
+        cell.value = row[col];
+      }
+
+      currentRow++;
+    }
+
+   
     try {
       final directory = await getExternalStorageDirectory();
-      final file = File('${directory!.path}/CourseWiseReport.xlsx');
+      final file = File('${directory!.path}/AllUserWiseReport.xlsx');
+
       await file.writeAsBytes(excelFile.encode()!);
+
       OpenFile.open(file.path);
     } catch (e) {
       _showSnackBar("Error while exporting: $e");
@@ -158,7 +228,8 @@ class _AllUserWiseReportState extends State<AllUserWiseReport> {
   }
 
   void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -175,7 +246,8 @@ class _AllUserWiseReportState extends State<AllUserWiseReport> {
             InkWell(
               onTap: _showMonthYearPicker,
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.grey),
                   borderRadius: BorderRadius.circular(4),
@@ -195,45 +267,36 @@ class _AllUserWiseReportState extends State<AllUserWiseReport> {
               ),
             ),
             const SizedBox(height: 10),
-            const Text("Select All Users"),
-            CheckboxListTile(
-              title: const Text("Select All Users"),
-              value: _selectAllUsers,
+            const Text("Choose Username"),
+            const SizedBox(height: 5),
+            DropdownSearch<String>(
+              items: userList,
+              selectedItem: _selectedUser,
               onChanged: (value) {
-                setState(() {
-                  _selectAllUsers = value ?? false;
-                  if (_selectAllUsers) {
-                    _selectedUser = null;
-                  }
-                });
+                setState(() => _selectedUser = value);
               },
-            ),
-            if (!_selectAllUsers) ...[
-              const SizedBox(height: 10),
-              const Text("Choose Username"),
-              const SizedBox(height: 5),
-              DropdownSearch<String>(
-                items: userList,
-                selectedItem: _selectedUser,
-                onChanged: (value) => setState(() => _selectedUser = value),
-                dropdownDecoratorProps: const DropDownDecoratorProps(
-                  dropdownSearchDecoration: InputDecoration(
-                    hintText: "Choose a username",
-                    border: OutlineInputBorder(),
-                  ),
+              dropdownDecoratorProps: const DropDownDecoratorProps(
+                dropdownSearchDecoration: InputDecoration(
+                  hintText: "Choose a username",
+                  border: OutlineInputBorder(),
                 ),
               ),
-            ],
+            ),
             const SizedBox(height: 10),
             Row(
               children: [
                 ElevatedButton.icon(
                   icon: const Icon(Icons.search, color: Colors.white),
-                  label: const Text("Search", style: TextStyle(color: Colors.white)),
-                  style: ElevatedButton.styleFrom(backgroundColor: AppColor.primary),
+                  label: const Text("Search",
+                      style: TextStyle(color: Colors.white)),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColor.primary),
                   onPressed: () {
-                    if (_selectedYear != null && _selectedMonth != null) {
-                      _fetchMonthlyReport(_selectedYear!, _selectedMonth!, _selectAllUsers ? [] : [_selectedUser!]);
+                    if (_selectedYear != null &&
+                        _selectedMonth != null &&
+                        _selectedUser != null) {
+                      _fetchMonthlyReport(
+                          _selectedYear!, _selectedMonth!, _selectedUser!);
                     } else {
                       _showSnackBar("All fields are required");
                     }
@@ -242,66 +305,80 @@ class _AllUserWiseReportState extends State<AllUserWiseReport> {
                 const SizedBox(width: 10),
                 ElevatedButton.icon(
                   icon: const Icon(Icons.file_download, color: Colors.white),
-                  label: const Text("Export to Excel", style: TextStyle(color: Colors.white)),
-                  style: ElevatedButton.styleFrom(backgroundColor: AppColor.primary),
+                  label: const Text("Export to Excel",
+                      style: TextStyle(color: Colors.white)),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColor.primary),
                   onPressed: () async {
-                    final permissionStatus = await Permission.storage.request();
-                    if (permissionStatus.isGranted) {
-                      _exportToExcel();
+                    final permissionStatus = await Permission.storage.status;
+                    if (permissionStatus.isDenied) {
+                      await Permission.storage.request();
+                    } else if (permissionStatus.isPermanentlyDenied) {
+                      await openAppSettings();
                     } else {
-                      _showSnackBar("Permission denied for storage");
+                      await _exportToExcel();
                     }
                   },
                 ),
               ],
             ),
-            if (_isLoading) const CircularProgressIndicator(),
-            // Report List
-            if (allUserModel.message != null)
-              Expanded(
-                child: ListView.builder(
-                  itemCount: allUserModel.message!.length,
-                  itemBuilder: (context, index) {
-                    final report = allUserModel.message?[index];
-                    String formattedDate = report?.date != null
-                        ? DateFormat("dd/MM/yyyy").format(report!.date!)
-                        : "N/A";
+            const SizedBox(height: 20),
+            _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : Expanded(
+                    child: allUserModel.message != null &&
+                            allUserModel.message!.isNotEmpty
+                        ? ListView.builder(
+                            itemCount: allUserModel.message!.length,
+                            itemBuilder: (context, index) {
+                              final report = allUserModel.message?[index];
+                              String formattedDate = report?.date != null
+                                  ? DateFormat("dd/MM/yyyy")
+                                      .format(report!.date!)
+                                  : "N/A";
 
-                    return Card(
-                      color: AppColor.primary,
-                      margin: const EdgeInsets.all(16.0),
-                      elevation: 4,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("Course Name: ${report?.coursename ?? "N/A"}",
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-                            ),
-                            SizedBox(height: 10),
-                            Text("Date: $formattedDate",
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-                            ),
-                            SizedBox(height: 10),
-                            Text("Occurrence: ${report?.occurance ?? "N/A"}",
-                              style: TextStyle(fontSize: 14, color: Colors.white),
-                            ),
-                            SizedBox(height: 10),
-                            Text("Remarks: ${report?.remarks ?? "N/A"}",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            SizedBox(height: 10),
-                            Text("PhoneNo: ${report?.phoneno ?? "N/A"}",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
+                              return Card(
+                                color: AppColor.primary,
+                                margin: const EdgeInsets.all(16.0),
+                                elevation: 4,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "PhoneNo: ${report?.phoneno ?? "N/A"}",
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 10),
+                                      Text(
+                                        "Date: $formattedDate",
+                                        style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white),
+                                      ),
+                                      const SizedBox(height: 10),
+                                      Text(
+                                        "Occurrence: ${report?.occurance ?? "N/A"}",
+                                        style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          )
+                        : const Center(child: Text("No data found")),
+                  ),
           ],
         ),
       ),

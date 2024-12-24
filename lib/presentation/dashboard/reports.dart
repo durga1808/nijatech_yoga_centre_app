@@ -61,7 +61,7 @@ class _ReportsState extends State<Reports> {
                       width: 36,
                     ),
                     label: 'User Reports',
-                    onPressed: () => _NavigateAllUserWiseReport(),
+                    onPressed: () => _NavigateToAllUserWiseReport(),
                     buttonColor: const Color(0xFFEAECFB),
                   ),
                 ),
@@ -133,7 +133,7 @@ class _ReportsState extends State<Reports> {
     ),
     );
    }
-      void _NavigateAllUserWiseReport() {
+      void _NavigateToAllUserWiseReport() {
     Navigator.push(context, MaterialPageRoute(builder: (context) =>  AllUserWiseReport(),
     ),
     );
