@@ -183,7 +183,7 @@ class _CourseWiseReport extends State<CourseWiseReport> {
 
     var excel = Excel.createExcel();
 
-    Sheet sheet = excel['Reports'];
+    Sheet sheet = excel['CourseWiseReport'];
 
     sheet.appendRow(['Course Name', 'Date', 'Occurrence', 'Remarks']);
 

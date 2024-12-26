@@ -28,42 +28,47 @@ class AllUserModel {
 }
 
 class Message {
-  String? username;
+  
   String? phoneno;
+  String? username;
   int? occurance;
   String? remarks;
   String? coursename;
   DateTime? date;
 
   Message(
-      {this.username,
+      {
       this.phoneno,
+      this.username,
       this.occurance,
       this.remarks,
       this.coursename,
       this.date});
 
   Message.fromJson(Map<String, dynamic> json) {
-    username = json['username'];
-    phoneno = json['phoneno'];
-    occurance = json['occurance'];
-    remarks = json['remarks'];
-    coursename = json['coursename'];
-     String dateStr = json['date'] ?? "";
-    
- 
-    try {
-     date = DateFormat("dd/MM/yyyy").parse(dateStr);  
-    } catch (e) {
-      print("Error parsing date: $dateStr");
-     date = null; 
-    }
+  phoneno = json['phoneno'];
+  username = json['username'];
+  occurance = json['occurance'];
+  remarks = json['remarks'];
+  coursename = json['coursename'];
+  
+  String dateStr = json['date'] ?? "";
+  try {
+    date = DateFormat("dd/MM/yyyy").parse(dateStr);  
+  } catch (e) {
+    print("Error parsing date: $dateStr");
+    date = null; 
   }
+
+  print("User: $username");  // Debugging the username field
+}
+
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['username'] = this.username;
+   
     data['phoneno'] = this.phoneno;
+     data['username'] = this.username;
     data['occurance'] = this.occurance;
     data['remarks'] = this.remarks;
     data['coursename'] = this.coursename;

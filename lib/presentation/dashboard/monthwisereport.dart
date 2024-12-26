@@ -136,7 +136,7 @@ class _MonthWiseReportState extends State<MonthWiseReport> {
   }
 
   var excelFile = excel.Excel.createExcel();
-  excel.Sheet sheet = excelFile['Reports'];
+  excel.Sheet sheet = excelFile['MonthWiseReport'];
   sheet.appendRow(['Course Name', 'Date', 'Occurrence', 'Remarks']);
 
   for (var report in model.message!) {
@@ -148,7 +148,7 @@ class _MonthWiseReportState extends State<MonthWiseReport> {
 
   try {
     final directory = await getExternalStorageDirectory();
-    final file = File('${directory!.path}/CourseWiseReport.xlsx');
+    final file = File('${directory!.path}/MonthWiseReport.xlsx');
     await file.writeAsBytes(excelFile.encode()!); // Used 'excelFile' here
     OpenFile.open(file.path);
   } catch (e) {

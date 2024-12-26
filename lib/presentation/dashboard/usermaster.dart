@@ -156,16 +156,16 @@ class _UserMasterState extends State<UserMaster> {
       appBar: AppBar(
         title: const Text('User Master'),
         actions: [
-          IconButton(
-            iconSize: 25,
-            icon: const Icon(Icons.add),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => AddNewUser()),
-              );
-            },
-          ),
+          // IconButton(
+          //   iconSize: 25,
+          //   icon: const Icon(Icons.add),
+          //   onPressed: () {
+          //     Navigator.push(
+          //       context,
+          //       MaterialPageRoute(builder: (context) => AddNewUser()),
+          //     );
+          //   },
+          // ),
         ],
       ),
       body: SingleChildScrollView(

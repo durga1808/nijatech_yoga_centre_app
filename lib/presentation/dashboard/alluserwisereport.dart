@@ -56,11 +56,9 @@ class _AllUserWiseReportState extends State<AllUserWiseReport> {
           userModel = UserModel.fromJson(jsonResponse);
           setState(() {
             userList = ["All Users"];
-            userList.addAll(userModel.message
-                    ?.where((user) => user.status == 0)
-                    .map((user) => user.username!)
-                    .toList() ??
-                []);
+            userList.addAll(
+                userModel.message?.map((user) => user.username!).toList() ??
+                    []);
           });
         } else {
           _showSnackBar("No data found");
@@ -106,11 +104,8 @@ class _AllUserWiseReportState extends State<AllUserWiseReport> {
       "createdBy": Prefs.getID("UserID"),
       "year": year.toString(),
       "month": monthNumber.toString().padLeft(2, '0'),
+      "username": username != "All Users" ? username : "",
     };
-
-    if (username != "All Users") {
-      body["username"] = username;
-    }
 
     try {
       final response = await Apiservice.getmonthWiseReportuser(body);
@@ -143,7 +138,6 @@ class _AllUserWiseReportState extends State<AllUserWiseReport> {
     var excelFile = excel.Excel.createExcel();
     excel.Sheet sheet = excelFile['AllUserReports'];
 
-
     Set<String> uniqueDatesSet = {};
     for (var report in allUserModel.message!) {
       if (report?.date != null) {
@@ -152,29 +146,24 @@ class _AllUserWiseReportState extends State<AllUserWiseReport> {
       }
     }
 
-   
     List<String> uniqueDates = uniqueDatesSet.toList();
     uniqueDates.sort((a, b) => a.compareTo(b));
 
-
     List<dynamic> headerRow = ['PhoneNo'] + uniqueDates;
 
-    
     var headerStyle = excel.CellStyle(
       backgroundColorHex: "#FFC000",
       fontColorHex: "#000000",
-      bold: true, 
+      bold: true,
     );
 
-  
     for (int col = 0; col < headerRow.length; col++) {
       var cell = sheet.cell(
           excel.CellIndex.indexByColumnRow(columnIndex: col, rowIndex: 0));
       cell.value = headerRow[col];
-      cell.cellStyle = headerStyle; 
+      cell.cellStyle = headerStyle;
     }
 
-   
     Map<String, Map<String, int>> phoneDataMap = {};
 
     for (var report in allUserModel.message!) {
@@ -196,8 +185,7 @@ class _AllUserWiseReportState extends State<AllUserWiseReport> {
       }
     }
 
-   
-    int currentRow = 1; 
+    int currentRow = 1;
     for (var phoneNo in phoneDataMap.keys) {
       List<dynamic> row = [phoneNo];
 
@@ -214,7 +202,6 @@ class _AllUserWiseReportState extends State<AllUserWiseReport> {
       currentRow++;
     }
 
-   
     try {
       final directory = await getExternalStorageDirectory();
       final file = File('${directory!.path}/AllUserWiseReport.xlsx');
@@ -271,7 +258,7 @@ class _AllUserWiseReportState extends State<AllUserWiseReport> {
             const SizedBox(height: 5),
             DropdownSearch<String>(
               items: userList,
-              selectedItem: _selectedUser,
+              selectedItem: _selectedUser ?? 'All Users', // Set default value
               onChanged: (value) {
                 setState(() => _selectedUser = value);
               },
@@ -355,6 +342,16 @@ class _AllUserWiseReportState extends State<AllUserWiseReport> {
                                           color: Colors.white,
                                         ),
                                       ),
+                                      // const SizedBox(height: 10),
+                                      // const SizedBox(height: 10),
+                                      // Text(
+                                      //   "Username: ${report?.username ?? "N/A"}",
+                                      //   style: const TextStyle(
+                                      //     fontSize: 16,
+                                      //     fontWeight: FontWeight.bold,
+                                      //     color: Colors.white,
+                                      //   ),
+                                      // ),
                                       const SizedBox(height: 10),
                                       Text(
                                         "Date: $formattedDate",
