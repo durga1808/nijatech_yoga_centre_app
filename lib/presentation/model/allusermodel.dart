@@ -1,5 +1,4 @@
-import 'package:intl/intl.dart';  
-
+import 'package:intl/intl.dart';
 
 class AllUserModel {
   bool? status;
@@ -12,13 +11,13 @@ class AllUserModel {
     if (json['message'] != null) {
       message = <Message>[];
       json['message'].forEach((v) {
-        message!.add(new Message.fromJson(v));
+        message!.add(Message.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['status'] = this.status;
     if (this.message != null) {
       data['message'] = this.message!.map((v) => v.toJson()).toList();
@@ -28,51 +27,62 @@ class AllUserModel {
 }
 
 class Message {
-  
-  String? phoneno;
   String? username;
+  String? phoneno;
   int? occurance;
   String? remarks;
   String? coursename;
-  DateTime? date;
+  DateTime? date; 
 
-  Message(
-      {
-      this.phoneno,
-      this.username,
-      this.occurance,
-      this.remarks,
-      this.coursename,
-      this.date});
+  Message({
+    this.username,
+    this.phoneno,
+    this.occurance,
+    this.remarks,
+    this.coursename,
+    this.date,
+  });
+
 
   Message.fromJson(Map<String, dynamic> json) {
-  phoneno = json['phoneno'];
-  username = json['username'];
-  occurance = json['occurance'];
-  remarks = json['remarks'];
-  coursename = json['coursename'];
-  
-  String dateStr = json['date'] ?? "";
-  try {
-    date = DateFormat("dd/MM/yyyy").parse(dateStr);  
-  } catch (e) {
-    print("Error parsing date: $dateStr");
-    date = null; 
-  }
+    username = json['username'];
+    phoneno = json['phoneno'];
+    occurance = json['occurance'];
+    remarks = json['remarks'];
+    coursename = json['coursename'];
 
-  print("User: $username");  // Debugging the username field
-}
+   
+    String dateStr = json['date'] ?? '';  
+    try {
+      if (dateStr.isNotEmpty) {
+        date = DateFormat("dd/MM/yyyy").parse(dateStr);  
+      } else {
+        date = null;
+      }
+    } catch (e) {
+      print("Error parsing date: $dateStr");
+      date = null;
+    }
+
+    print("User: $username");  
+  }
 
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-   
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['username'] = this.username;
     data['phoneno'] = this.phoneno;
-     data['username'] = this.username;
     data['occurance'] = this.occurance;
     data['remarks'] = this.remarks;
     data['coursename'] = this.coursename;
-data['date'] = date != null ? DateFormat("dd/MM/yyyy").format(date!) : null; 
+
+ 
+    if (date != null) {
+      data['date'] = DateFormat("dd/MM/yyyy").format(date!);  
+    } else {
+      data['date'] = null;  
+    }
+
     return data;
   }
 }

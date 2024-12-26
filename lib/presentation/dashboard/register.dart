@@ -12,82 +12,76 @@ class Register extends StatefulWidget {
 class RegisterState extends State<Register> {
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
+  bool passwordVisible = false; 
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _countrycodeController = TextEditingController();
   final TextEditingController _phonenoController = TextEditingController();
 
-Future<bool> _checkEmailExists(String email) async {
-  try {
-  
-    var response = await Apiservice.checkEmail(email);
+  Future<bool> _checkEmailExists(String email) async {
+    try {
+      var response = await Apiservice.checkEmail(email);
+      var responseData = jsonDecode(response.body);
 
- 
-    var responseData = jsonDecode(response.body);
-
-    if (response.statusCode == 200) {
-      return responseData['exists'] ?? false;
-    } else {
+      if (response.statusCode == 200) {
+        return responseData['exists'] ?? false;
+      } else {
+        AppUtils.showSingleDialogPopup(
+          context,
+          "Failed to check email. Please try again.",
+          "OK",
+          () => Navigator.pop(context),
+        );
+        return false;
+      }
+    } catch (error) {
       AppUtils.showSingleDialogPopup(
         context,
-        "Failed to check email. Please try again.",
+        "An error occurred: $error",
         "OK",
         () => Navigator.pop(context),
       );
       return false;
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
-  } catch (error) {
-    
-    AppUtils.showSingleDialogPopup(
-      context,
-      "An error occurred: $error",
-      "OK",
-      () => Navigator.pop(context),
-    );
-    return false;
-  } finally {
-    setState(() {
-      _isLoading = false;
-    });
   }
-}
 
- Future<bool> _checkPhoneExists(String phoneno) async {
-  try {
-  
-    var response = await Apiservice.checkPhone(phoneno);
+  Future<bool> _checkPhoneExists(String phoneno) async {
+    try {
+      var response = await Apiservice.checkPhone(phoneno);
+      var responseData = jsonDecode(response.body);
 
- 
-    var responseData = jsonDecode(response.body);
-
-    if (response.statusCode == 200) {
-      return responseData['exists'] ?? false;
-    } else {
+      if (response.statusCode == 200) {
+        return responseData['exists'] ?? false;
+      } else {
+        AppUtils.showSingleDialogPopup(
+          context,
+          "Failed to check phone number. Please try again.",
+          "OK",
+          () => Navigator.pop(context),
+        );
+        return false;
+      }
+    } catch (error) {
       AppUtils.showSingleDialogPopup(
         context,
-        "Failed to check phoneno. Please try again.",
+        "An error occurred: $error",
         "OK",
         () => Navigator.pop(context),
       );
       return false;
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
-  } catch (error) {
-    
-    AppUtils.showSingleDialogPopup(
-      context,
-      "An error occurred: $error",
-      "OK",
-      () => Navigator.pop(context),
-    );
-    return false;
-  } finally {
-    setState(() {
-      _isLoading = false;
-    });
   }
-}
 
   Future<bool> _performAsyncValidations() async {
     bool emailExists = await _checkEmailExists(_emailController.text);
@@ -121,7 +115,6 @@ Future<bool> _checkEmailExists(String email) async {
 
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      // Perform async validations
       bool isValid = await _performAsyncValidations();
       if (!isValid) return;
 
@@ -130,6 +123,7 @@ Future<bool> _checkEmailExists(String email) async {
         "username": _usernameController.text,
         "userpassword": _passwordController.text,
         "mailid": _emailController.text,
+        "countrycode": _countrycodeController.text,
         "phoneno": _phonenoController.text,
       };
 
@@ -139,7 +133,6 @@ Future<bool> _checkEmailExists(String email) async {
 
       try {
         var response = await Apiservice.registerUser(userData);
-
         setState(() {
           _isLoading = false;
         });
@@ -158,6 +151,7 @@ Future<bool> _checkEmailExists(String email) async {
               _usernameController.clear();
               _passwordController.clear();
               _emailController.clear();
+              _countrycodeController.clear();
               _phonenoController.clear();
               setState(() {});
             },
@@ -231,11 +225,23 @@ Future<bool> _checkEmailExists(String email) async {
               const SizedBox(height: 10),
               TextFormField(
                 controller: _passwordController,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
+                obscureText: !passwordVisible,
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
                   labelText: 'Password',
+                  hintText: 'Password',
+                  helperStyle: const TextStyle(color: Colors.green),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      passwordVisible ? Icons.visibility : Icons.visibility_off,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        passwordVisible = !passwordVisible;
+                      });
+                    },
+                  ),
                 ),
-                obscureText: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a password';
@@ -251,10 +257,23 @@ Future<bool> _checkEmailExists(String email) async {
                   labelText: 'Email',
                 ),
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
+                  if (value == null || value.isEmpty || !RegExp(r"^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$").hasMatch(value)) {
                     return 'Please enter a valid email';
                   }
-                 
+                  return null;
+                },
+              ),
+              const SizedBox(height: 10),
+              TextFormField(
+                controller: _countrycodeController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Country Code',
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a valid Country Code';
+                  }
                   return null;
                 },
               ),
@@ -266,10 +285,9 @@ Future<bool> _checkEmailExists(String email) async {
                   labelText: 'Phone Number',
                 ),
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
+                  if (value == null || value.isEmpty || value.length < 10) {
                     return 'Please enter a valid phone number';
                   }
-               
                   return null;
                 },
               ),
@@ -277,13 +295,10 @@ Future<bool> _checkEmailExists(String email) async {
               ElevatedButton(
                 onPressed: _isLoading ? null : _submitForm,
                 child: _isLoading
-                    ? const CircularProgressIndicator(
-                        color: Colors.white,
-                      )
-                    : const Text('Register',style: TextStyle(color: Colors.white),),
-                    style: ElevatedButton.styleFrom(backgroundColor: AppColor.primary),
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text('Register', style: TextStyle(color: Colors.white)),
+                style: ElevatedButton.styleFrom(backgroundColor: AppColor.primary),
               ),
-            
             ],
           ),
         ),

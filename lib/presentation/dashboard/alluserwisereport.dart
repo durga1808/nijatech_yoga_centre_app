@@ -104,11 +104,11 @@ class _AllUserWiseReportState extends State<AllUserWiseReport> {
       "createdBy": Prefs.getID("UserID"),
       "year": year.toString(),
       "month": monthNumber.toString().padLeft(2, '0'),
-      "username": username != "All Users" ? username : "",
+      "username": username
     };
 
     try {
-      final response = await Apiservice.getmonthWiseReportuser(body);
+      final response = await Apiservice.getAllUserWiseReport(body);
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
         if (jsonResponse['status'] == true) {
@@ -120,7 +120,7 @@ class _AllUserWiseReportState extends State<AllUserWiseReport> {
           _showSnackBar("No data found");
         }
       } else {
-        _showSnackBar("Error fetching data");
+        _showSnackBar("Error fetching data: ${response.statusCode}");
       }
     } catch (e) {
       _showSnackBar("Error: $e");
@@ -258,7 +258,7 @@ class _AllUserWiseReportState extends State<AllUserWiseReport> {
             const SizedBox(height: 5),
             DropdownSearch<String>(
               items: userList,
-              selectedItem: _selectedUser ?? 'All Users', // Set default value
+              selectedItem: _selectedUser ?? 'Selected User',
               onChanged: (value) {
                 setState(() => _selectedUser = value);
               },
@@ -313,69 +313,75 @@ class _AllUserWiseReportState extends State<AllUserWiseReport> {
             _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : Expanded(
-                    child: allUserModel.message != null &&
-                            allUserModel.message!.isNotEmpty
-                        ? ListView.builder(
-                            itemCount: allUserModel.message!.length,
-                            itemBuilder: (context, index) {
-                              final report = allUserModel.message?[index];
-                              String formattedDate = report?.date != null
-                                  ? DateFormat("dd/MM/yyyy")
-                                      .format(report!.date!)
-                                  : "N/A";
+                    child: _isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : allUserModel.message != null &&
+                                allUserModel.message!.isNotEmpty
+                            ? ListView.builder(
+                                itemCount: allUserModel.message!.length,
+                                itemBuilder: (context, index) {
+                                  final report = allUserModel.message?[index];
 
-                              return Card(
-                                color: AppColor.primary,
-                                margin: const EdgeInsets.all(16.0),
-                                elevation: 4,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "PhoneNo: ${report?.phoneno ?? "N/A"}",
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                        ),
+                                
+                                  String formattedDate = report?.date != null
+                                      ? DateFormat("dd/MM/yyyy")
+                                          .format(report!.date!)
+                                      : "N/A";
+                                  
+                                  return Card(
+                                    color: AppColor.primary,
+                                    margin: const EdgeInsets.all(16.0),
+                                    elevation: 4,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16.0),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "PhoneNo: ${report?.phoneno ?? "N/A"}",
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 10),
+                                          Text(
+                                            
+                                            "Username: ${report?.username ?? "N/A"}",
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 10),
+                                          Text(
+                                            "Occurrence: ${report?.occurance ?? "N/A"}",
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 10),
+                                          Text(
+                                            "Date: $formattedDate",
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                      // const SizedBox(height: 10),
-                                      // const SizedBox(height: 10),
-                                      // Text(
-                                      //   "Username: ${report?.username ?? "N/A"}",
-                                      //   style: const TextStyle(
-                                      //     fontSize: 16,
-                                      //     fontWeight: FontWeight.bold,
-                                      //     color: Colors.white,
-                                      //   ),
-                                      // ),
-                                      const SizedBox(height: 10),
-                                      Text(
-                                        "Date: $formattedDate",
-                                        style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white),
-                                      ),
-                                      const SizedBox(height: 10),
-                                      Text(
-                                        "Occurrence: ${report?.occurance ?? "N/A"}",
-                                        style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                          )
-                        : const Center(child: Text("No data found")),
-                  ),
+                                    ),
+                                  );
+                                },
+                              )
+                            : const Center(child: Text("No Data Available")),
+                  )
           ],
         ),
       ),
