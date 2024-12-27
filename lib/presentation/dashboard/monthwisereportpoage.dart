@@ -40,7 +40,7 @@ class _MonthWiseReportPageState extends State<MonthWiseReportPage> {
         fontSize: 16,
       ),
       backgroundColor: Colors.white,
-      selectionColor: AppColor.primary, // Your custom primary color
+      selectionColor: AppColor.primary, 
       barrierDismissible: true,
     );
 
@@ -224,7 +224,7 @@ class _MonthWiseReportPageState extends State<MonthWiseReportPage> {
                                             ),
                                             const SizedBox(height: 8),
                                             Text(
-                                              '${report?.remarks ?? "N/A"}',
+                                              'Remarks:${report?.remarks ?? "N/A"}',
                                               style: const TextStyle(
                                                 fontSize: 16,
                                                 color: Colors.white,

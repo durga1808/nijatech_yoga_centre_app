@@ -209,7 +209,7 @@ class _DateWiseReportPageState extends State<DateWiseReportPage> {
                                       ),
                                       const SizedBox(height: 8),
                                       Text(
-                                        '${report.remarks}',
+                                        'Remarks:${report.remarks}',
                                         style: TextStyle(
                                           fontSize: 16,
                                           color: Colors.white,

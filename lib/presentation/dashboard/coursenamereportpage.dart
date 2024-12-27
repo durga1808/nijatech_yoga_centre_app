@@ -237,7 +237,7 @@ class _CourseNameReportPageState extends State<CourseNameReportPage> {
                                       ),
                                       const SizedBox(height: 10),
                                       Text(
-                                        ' ${report.remarks}',
+                                        'Remarks: ${report.remarks}',
                                         style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 16,
