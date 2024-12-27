@@ -98,24 +98,42 @@ class _ChartReportPageState extends State<MonthChartReportPage> {
     }
   }
 
+  // void _prepareChartData() {
+  //   final Map<String, int> courseCountMap = {};
+  //   courseNames.clear();
+
+  //   if (model.message != null) {
+  //     for (var report in model.message!) {
+  //       final courseName = report.coursename ?? 'Unknown';
+  //       courseCountMap[courseName] = (courseCountMap[courseName] ?? 0) + 1;
+  //     }
+  //   }
+
+  //   setState(() {
+  //     chartData = courseCountMap.entries
+  //         .map((entry) => ChartData(entry.key, entry.value))
+  //         .toList();
+  //     courseNames = courseCountMap.keys.toList();
+  //   });
+  // }
+
   void _prepareChartData() {
-    final Map<String, int> courseCountMap = {};
-    courseNames.clear();
 
-    if (model.message != null) {
-      for (var report in model.message!) {
-        final courseName = report.coursename ?? 'Unknown';
-        courseCountMap[courseName] = (courseCountMap[courseName] ?? 0) + 1;
-      }
-    }
+  final Map<String, int> courseOccurrenceMap = {};
 
-    setState(() {
-      chartData = courseCountMap.entries
-          .map((entry) => ChartData(entry.key, entry.value))
-          .toList();
-      courseNames = courseCountMap.keys.toList();
-    });
+  for (var report in model.message ?? []) {
+    final courseName = report?.coursename ?? 'Unknown';
+    final occurrence = (report?.occurance ?? 0) as int; 
+    courseOccurrenceMap[courseName] = (courseOccurrenceMap[courseName] ?? 0) + occurrence;
   }
+
+ 
+  setState(() {
+    chartData = courseOccurrenceMap.entries
+        .map((entry) => ChartData(entry.key, entry.value))
+        .toList();
+  });
+}
 
 // void _prepareChartData() {
 //   setState(() {
