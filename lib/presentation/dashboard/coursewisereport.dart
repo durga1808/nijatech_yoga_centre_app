@@ -375,7 +375,7 @@ class _CourseWiseReport extends State<CourseWiseReport> {
                                       Text(
                                         'Occurrence: ${report.occurance}',
                                         style: const TextStyle(
-                                          fontSize: 14,
+                                          fontSize: 16,
                                           color: Colors.white,
                                         ),
                                       ),
@@ -383,7 +383,7 @@ class _CourseWiseReport extends State<CourseWiseReport> {
                                       Text(
                                         'Remarks: ${report.remarks}',
                                         style: const TextStyle(
-                                          fontSize: 14,
+                                          fontSize: 16,
                                           color: Colors.white,
                                         ),
                                       ),

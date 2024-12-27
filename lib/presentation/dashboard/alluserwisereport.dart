@@ -322,12 +322,11 @@ class _AllUserWiseReportState extends State<AllUserWiseReport> {
                                 itemBuilder: (context, index) {
                                   final report = allUserModel.message?[index];
 
-                                
                                   String formattedDate = report?.date != null
                                       ? DateFormat("dd/MM/yyyy")
                                           .format(report!.date!)
                                       : "N/A";
-                                  
+
                                   return Card(
                                     color: AppColor.primary,
                                     margin: const EdgeInsets.all(16.0),
@@ -348,17 +347,7 @@ class _AllUserWiseReportState extends State<AllUserWiseReport> {
                                           ),
                                           const SizedBox(height: 10),
                                           Text(
-                                            
                                             "Username: ${report?.username ?? "N/A"}",
-                                            style: const TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 10),
-                                          Text(
-                                            "Occurrence: ${report?.occurance ?? "N/A"}",
                                             style: const TextStyle(
                                               fontSize: 16,
                                               fontWeight: FontWeight.bold,
@@ -370,7 +359,14 @@ class _AllUserWiseReportState extends State<AllUserWiseReport> {
                                             "Date: $formattedDate",
                                             style: const TextStyle(
                                               fontSize: 16,
-                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 10),
+                                          Text(
+                                            "Occurrence: ${report?.occurance ?? "N/A"}",
+                                            style: const TextStyle(
+                                              fontSize: 16,
                                               color: Colors.white,
                                             ),
                                           ),
