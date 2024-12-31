@@ -33,8 +33,11 @@ class AppLocalizations {
       : 'Enter User Password';
   String get Ok => locale.languageCode == 'ta' ? 'சரி' : 'Ok';
   String get logIn => locale.languageCode == 'ta' ? 'உள்நுழைக' : 'Log In';
-  String get register => locale.languageCode == 'ta' ? ' பதிவு ' : ' Register';
-  String get dontHaveAccount => locale.languageCode == 'ta' ? 'புதிய கணக்கை உருவாக்கவா?' : 'Don`t have an account? ';
+  String get register =>
+      locale.languageCode == 'ta' ? ' பதிவு ' : ' Register here';
+  String get dontHaveAccount => locale.languageCode == 'ta'
+      ? 'புதிய கணக்கை உருவாக்கவா?'
+      : " Don't have an account?";
   String get poweredBy =>
       locale.languageCode == 'ta' ? 'மூலம் இயக்கப்படுகிறது' : 'Powered By';
   String get myscoretitle =>

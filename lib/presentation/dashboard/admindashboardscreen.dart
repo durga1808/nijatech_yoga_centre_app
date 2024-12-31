@@ -5,7 +5,6 @@ import 'package:nijatech_yoga_centre_app/presentation/loginscreen/loginscreen.da
 import 'package:nijatech_yoga_centre_app/presentation/util/appcolor.dart';
 import 'package:nijatech_yoga_centre_app/presentation/util/pref.dart';
 
-
 class AdminDashBoardScreen extends StatefulWidget {
   const AdminDashBoardScreen({Key? key}) : super(key: key);
 
@@ -89,96 +88,42 @@ class DashboardScreenState extends State<AdminDashBoardScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColor.primary,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(18),
-                                  ),
-                                  padding: const EdgeInsets.all(16),
-                                  minimumSize: const Size(60, 60),
-                                ),
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => Master()),
-                                  );
-                                },
-                                child: const ImageIcon(
-                                  AssetImage('assets/icons/mastercard.png'),
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(height: 5),
-                              Text('Master',
-                                  style: TextStyle(color: Colors.black)),
-                            ],
+                          _buildDashboardOption(
+                            icon:
+                                const AssetImage('assets/icons/mastercard.png'),
+                            label: 'Master',
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => Master()),
+                              );
+                            },
                           ),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColor.primary,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(18),
-                                  ),
-                                  padding: const EdgeInsets.all(16),
-                                  minimumSize: const Size(60, 60),
-                                ),
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => Reports()),
-                                  );
-                                },
-                                child: const ImageIcon(
-                                  AssetImage('assets/icons/Group 34082.png'),
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(height: 5),
-                              Text('Reports',
-                                  style: TextStyle(color: Colors.black)),
-                            ],
+                          _buildDashboardOption(
+                            icon: const AssetImage(
+                                'assets/icons/Group 34082.png'),
+                            label: 'Reports',
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const Reports()),
+                              );
+                            },
                           ),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColor.primary,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(18),
-                                  ),
-                                  padding: const EdgeInsets.all(16),
-                                  minimumSize: const Size(60, 60),
-                                ),
-                                onPressed: () {
-                                  Prefs.setLoggedIn("IsLoggedIn", false);
-                                  Navigator.pushAndRemoveUntil(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (BuildContext context) {
-                                      return const LoginScreen();
-                                    }),
-                                    (route) => false,
-                                  );
-                                },
-                                child: const Icon(
-                                  Icons.logout,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(height: 5),
-                              Text('Log Out',
-                                  style: TextStyle(color: Colors.black)),
-                            ],
+                          _buildDashboardOption(
+                            icon: Icons.logout,
+                            label: 'Log Out',
+                            onTap: () {
+                              Prefs.setLoggedIn("IsLoggedIn", false);
+                              Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const LoginScreen()),
+                                (route) => false,
+                              );
+                            },
                           ),
                         ],
                       ),

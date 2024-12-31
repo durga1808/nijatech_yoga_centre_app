@@ -299,20 +299,18 @@ class DashboardScreenState extends State<DashboardScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               ElevatedButton(
-                                   style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      AppColor.primary,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(18), 
-                                  ),
-                                  padding: const EdgeInsets.all(16), 
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColor.primary,
+                                  shape: const CircleBorder(),
+                                  padding: const EdgeInsets.all(16),
                                   minimumSize: const Size(60, 60),
                                 ),
                                 onPressed: () {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => Myscore()),
+                                      builder: (context) => Myscore(),
+                                    ),
                                   );
                                 },
                                 child: const ImageIcon(
@@ -329,13 +327,10 @@ class DashboardScreenState extends State<DashboardScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      AppColor.primary,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(18), 
-                                  ),
-                                  padding: const EdgeInsets.all(16), 
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColor.primary,
+                                  shape: const CircleBorder(),
+                                  padding: const EdgeInsets.all(16),
                                   minimumSize: const Size(60, 60),
                                 ),
                                 onPressed: () {
@@ -385,12 +380,9 @@ class DashboardScreenState extends State<DashboardScreen> {
                             children: [
                               ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      AppColor.primary,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(18), 
-                                  ),
-                                  padding: const EdgeInsets.all(16), 
+                                  backgroundColor: AppColor.primary,
+                                  shape: const CircleBorder(),
+                                  padding: const EdgeInsets.all(16),
                                   minimumSize: const Size(60, 60),
                                 ),
                                 onPressed: () {

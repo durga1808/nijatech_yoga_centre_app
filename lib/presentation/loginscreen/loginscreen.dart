@@ -130,81 +130,83 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
-Widget _loginCredentials(Size size) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          AppLocalizations.of(context)?.pleaseLogIn ?? 'Please Log In',
-          style: const TextStyle(fontSize: 24),
-        ),
-        SizedBox(height: size.height * 0.03),
-        _inputField(
-            context: context,
-            controller: usernamecontroller,
-            hintText: AppLocalizations.of(context)?.username ?? 'Username',
-            icon: Icons.person),
-        SizedBox(height: size.height * 0.04),
-        _inputField(
-            context: context,
-            controller: passwordcontroller,
-            hintText: AppLocalizations.of(context)?.password ?? 'Password',
-            icon: Icons.lock_outline,
-            obscureText: true),
-        SizedBox(height: size.height * 0.04),
-        _loginButton(context, size),
-        SizedBox(height: size.height * 0.03),
-        _dontHaveAccountSection(context),
-      ],
-    ),
-  );
-}
 
-Widget _dontHaveAccountSection(BuildContext context) {
-  return Center(
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          AppLocalizations.of(context)?.dontHaveAccount ?? "Don't have an account?",
-          style: const TextStyle(
-            color: Colors.black,
-            fontSize: 16,
+  Widget _loginCredentials(Size size) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            AppLocalizations.of(context)?.pleaseLogIn ?? 'Please Log In',
+            style: const TextStyle(fontSize: 24),
           ),
-        ),
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) =>  Register(), 
-            ));
-          },
-          child: Text(
-            AppLocalizations.of(context)?.register ?? 'Register',
+          SizedBox(height: size.height * 0.03),
+          _inputField(
+              context: context,
+              controller: usernamecontroller,
+              hintText: AppLocalizations.of(context)?.username ?? 'Username',
+              icon: Icons.person),
+          SizedBox(height: size.height * 0.04),
+          _inputField(
+              context: context,
+              controller: passwordcontroller,
+              hintText: AppLocalizations.of(context)?.password ?? 'Password',
+              icon: Icons.lock_outline,
+              obscureText: true),
+          SizedBox(height: size.height * 0.04),
+          _loginButton(context, size),
+          SizedBox(height: size.height * 0.03),
+          _dontHaveAccountSection(context),
+        ],
+      ),
+    );
+  }
+
+  Widget _dontHaveAccountSection(BuildContext context) {
+    return Center(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            AppLocalizations.of(context)?.dontHaveAccount ??
+                " Don't have an account?",
             style: const TextStyle(
-              color: AppColor.primary,
+              color: Colors.black,
               fontSize: 16,
-              fontWeight: FontWeight.bold,
             ),
           ),
-        ),
-      ],
-    ),
-  );
-}
-
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => Register(),
+              ));
+            },
+            child: Text(
+              AppLocalizations.of(context)?.register ?? 'Register here',
+              style: const TextStyle(
+                color: AppColor.primary,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _registerButton(BuildContext context) {
     return Center(
       child: TextButton(
         onPressed: () {
           Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) =>  Register(), 
+            builder: (context) => Register(),
           ));
         },
         child: Text(
-          AppLocalizations.of(context)?.register ?? 'Dont have an account? Register',
+          AppLocalizations.of(context)?.register ??
+              'Dont have an account? Register',
           style: const TextStyle(
             color: AppColor.primary,
             fontSize: 16,

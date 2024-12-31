@@ -9,6 +9,7 @@ import 'package:flutter/widgets.dart';
 import 'package:nijatech_yoga_centre_app/presentation/dashboard/courcemaster.dart';
 import 'package:nijatech_yoga_centre_app/presentation/dashboard/usermaster.dart';
 import 'package:nijatech_yoga_centre_app/presentation/dashboard/videomaster.dart';
+import 'package:nijatech_yoga_centre_app/presentation/util/appcolor.dart';
 
 class Master extends StatefulWidget {
   @override
@@ -31,75 +32,68 @@ class _MasterState extends State<Master> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Expanded(
-                  child: _buildCardWithButton(
-                      icon: Image.asset(
-                        "assets/images/useraccount.png",
-                        height: 36,
-                        width: 36,
-                      ),
-                      label: 'User Master',
-                      onPressed: () => _navigateToUserMasterPage(),
-                      buttonColor: const Color(0xFFEAECFB)),
+                  child: _buildCircleIconWithLabel(
+                    icon: const Icon(
+                      Icons.person,
+                      size: 24,
+                      color: Colors.white,
+                    ),
+                    label: 'User Master',
+                    onPressed: _navigateToUserMasterPage,
+                  ),
+                ),
+                Expanded(
+                  child: _buildCircleIconWithLabel(
+                    icon: const Icon(
+                      Icons.school,
+                      size: 24,
+                      color: Colors.white,
+                    ),
+                    label: 'Course Master',
+                    onPressed: _navigateToCourceMasterPage,
+                  ),
+                ),
+                Expanded(
+                  child: _buildCircleIconWithLabel(
+                    icon: const Icon(
+                      Icons.video_library,
+                      size: 24,
+                      color: Colors.white,
+                    ),
+                    label: 'Video Master',
+                    onPressed: _navigateToVideoMasterPage,
+                  ),
                 ),
               ],
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Expanded(
-                  child: _buildCardWithButton(
-                      icon: Image.asset(
-                        "assets/images/coursemaster.png",
-                        height: 36,
-                        width: 36,
-                      ),
-                      label: 'Course Master',
-                      onPressed: () => _navigateToCourceMasterPage(),
-                      buttonColor: const Color(0xFFEAECFB)),
-                ),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Expanded(
-                  child: _buildCardWithButton(
-                      icon: Image.asset(
-                        "assets/images/videomaster.png",
-                        height: 36,
-                        width: 36,
-                      ),
-                      label: 'Video Master',
-                      onPressed: () => _navigateToVideoMasterPage(),
-                      buttonColor: const Color(0xFFEAECFB)),
-                ),
-              ],
-            )
           ],
         ),
       ),
     );
   }
 
-  Widget _buildCardWithButton({
+  Widget _buildCircleIconWithLabel({
     required Widget icon,
     required String label,
     required VoidCallback onPressed,
-    Color? buttonColor,
   }) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: _buildIconButton(
-          icon: icon,
-          label: label,
-          onPressed: onPressed,
-          buttonColor: buttonColor,
-        ),
+    return GestureDetector(
+      onTap: onPressed,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircleAvatar(
+            backgroundColor: AppColor.primary,
+            radius: 28,
+            child: icon,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 12),
+          ),
+        ],
       ),
     );
   }

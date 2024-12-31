@@ -5,6 +5,7 @@ import 'package:nijatech_yoga_centre_app/presentation/dashboard/datechartreportp
 import 'package:nijatech_yoga_centre_app/presentation/dashboard/datewisereportpage.dart';
 import 'package:nijatech_yoga_centre_app/presentation/dashboard/monthchartreportpage.dart';
 import 'package:nijatech_yoga_centre_app/presentation/dashboard/monthwisereportpoage.dart';
+import 'package:nijatech_yoga_centre_app/presentation/util/appcolor.dart';
 
 class MyReportsPage extends StatefulWidget {
   const MyReportsPage({super.key});
@@ -29,27 +30,25 @@ class _MyReportsPageState extends State<MyReportsPage> {
               Row(
                 children: [
                   Expanded(
-                    child: _buildCardWithButton(
-                      icon: Image.asset(
-                        "assets/images/course.png",
-                        height: 36,
-                        width: 36,
+                    child: _buildCircleIconWithLabel(
+                      icon: const Icon(
+                        Icons.school,
+                        size: 24,
+                        color: Colors.white,
                       ),
                       label: 'Course Wise Report',
                       onPressed: _navigateToCourseNamePage,
-                      buttonColor: const Color(0xFFEAECFB),
                     ),
                   ),
                   Expanded(
-                    child: _buildCardWithButton(
-                      icon: Image.asset(
-                        "assets/images/daycalendar.png",
-                        height: 36,
-                        width: 36,
+                    child: _buildCircleIconWithLabel(
+                      icon: const Icon(
+                        Icons.calendar_today,
+                        size: 24,
+                        color: Colors.white,
                       ),
                       label: 'Day Wise Report',
                       onPressed: _navigateToDateWisePage,
-                      buttonColor: const Color(0xFFEAECFB),
                     ),
                   ),
                 ],
@@ -58,27 +57,25 @@ class _MyReportsPageState extends State<MyReportsPage> {
               Row(
                 children: [
                   Expanded(
-                    child: _buildCardWithButton(
-                      icon: Image.asset(
-                        "assets/images/calendar.png",
-                        height: 36,
-                        width: 36,
+                    child: _buildCircleIconWithLabel(
+                      icon: const Icon(
+                        Icons.calendar_month,
+                        size: 24,
+                        color: Colors.white,
                       ),
                       label: 'Month Wise Report',
                       onPressed: _navigateToMonthWisePage,
-                      buttonColor: const Color(0xFFEAECFB),
                     ),
                   ),
                   Expanded(
-                    child: _buildCardWithButton(
-                      icon: Image.asset(
-                        "assets/images/coursechart.png",
-                        height: 36,
-                        width: 36,
+                    child: _buildCircleIconWithLabel(
+                      icon: const Icon(
+                        Icons.pie_chart,
+                        size: 24,
+                        color: Colors.white,
                       ),
                       label: 'Course Wise Chart Report',
                       onPressed: _navigateToCourseNameChartWisePage,
-                      buttonColor: const Color(0xFFEAECFB),
                     ),
                   ),
                 ],
@@ -87,27 +84,25 @@ class _MyReportsPageState extends State<MyReportsPage> {
               Row(
                 children: [
                   Expanded(
-                    child: _buildCardWithButton(
-                      icon: Image.asset(
-                        "assets/images/barchart.png",
-                        height: 36,
-                        width: 36,
+                    child: _buildCircleIconWithLabel(
+                      icon: const Icon(
+                        Icons.bar_chart,
+                        size: 24,
+                        color: Colors.white,
                       ),
                       label: 'Month Wise Chart Report',
                       onPressed: _navigateToMonthChartWisePage,
-                      buttonColor: const Color(0xFFEAECFB),
                     ),
                   ),
                   Expanded(
-                    child: _buildCardWithButton(
-                      icon: Image.asset(
-                        "assets/images/piechart.png",
-                        height: 36,
-                        width: 36,
+                    child: _buildCircleIconWithLabel(
+                      icon: const Icon(
+                        Icons.area_chart,
+                        size: 24,
+                        color: Colors.white,
                       ),
                       label: 'Day Wise Chart Report',
                       onPressed: _navigateToDateChartWisePage,
-                      buttonColor: const Color(0xFFEAECFB),
                     ),
                   ),
                 ],
@@ -119,28 +114,28 @@ class _MyReportsPageState extends State<MyReportsPage> {
     );
   }
 
-  Widget _buildCardWithButton({
+  Widget _buildCircleIconWithLabel({
     required Widget icon,
     required String label,
     required VoidCallback onPressed,
-    Color? buttonColor,
   }) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: SizedBox(
-        height: 135, 
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: _buildIconButton(
-            icon: icon,
-            label: label,
-            onPressed: onPressed,
-            buttonColor: buttonColor,
+    return GestureDetector(
+      onTap: onPressed,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircleAvatar(
+            backgroundColor: AppColor.primary,
+            radius: 28,
+            child: icon,
           ),
-        ),
+          const SizedBox(height: 8),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 12),
+          ),
+        ],
       ),
     );
   }

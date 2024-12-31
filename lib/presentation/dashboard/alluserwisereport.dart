@@ -149,7 +149,7 @@ class _AllUserWiseReportState extends State<AllUserWiseReport> {
     List<String> uniqueDates = uniqueDatesSet.toList();
     uniqueDates.sort((a, b) => a.compareTo(b));
 
-    List<dynamic> headerRow = ['PhoneNo'] + uniqueDates;
+    List<dynamic> headerRow = ['PhoneNo'] + uniqueDates + ['OverallScore'];
 
     var headerStyle = excel.CellStyle(
       backgroundColorHex: "#FFC000",
@@ -189,9 +189,15 @@ class _AllUserWiseReportState extends State<AllUserWiseReport> {
     for (var phoneNo in phoneDataMap.keys) {
       List<dynamic> row = [phoneNo];
 
+      int totalOccurrence = 0;
+
       for (var date in uniqueDates) {
-        row.add(phoneDataMap[phoneNo]?[date] ?? 0);
+        int occurrence = phoneDataMap[phoneNo]?[date] ?? 0;
+        row.add(occurrence);
+        totalOccurrence += occurrence;
       }
+
+      row.add(totalOccurrence);
 
       for (int col = 0; col < row.length; col++) {
         var cell = sheet.cell(excel.CellIndex.indexByColumnRow(

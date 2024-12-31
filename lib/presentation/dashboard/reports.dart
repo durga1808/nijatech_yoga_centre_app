@@ -1,10 +1,8 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:nijatech_yoga_centre_app/presentation/dashboard/alluserwisereport.dart';
 import 'package:nijatech_yoga_centre_app/presentation/dashboard/coursewisereport.dart';
 import 'package:nijatech_yoga_centre_app/presentation/dashboard/monthwisereport.dart';
-
+import 'package:nijatech_yoga_centre_app/presentation/util/appcolor.dart';
 
 class Reports extends StatefulWidget {
   const Reports({super.key});
@@ -28,41 +26,38 @@ class _ReportsState extends State<Reports> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
-                  child: _buildCardWithButton(
-                    icon: Image.asset(
-                      "assets/images/course.png",
-                      height: 36,
-                      width: 36,
+                  child: _buildCircleIconWithLabel(
+                    icon: const Icon(
+                      Icons.school,
+                      size: 24,
+                      color: Colors.white,
                     ),
                     label: 'Course Report',
-                    onPressed: () => _navigateToCourseNamePage(),
-                    buttonColor: const Color(0xFFEAECFB),
+                    onPressed: _navigateToCourseNamePage,
                   ),
                 ),
                 const SizedBox(width: 5),
                 Expanded(
-                  child: _buildCardWithButton(
-                    icon: Image.asset(
-                      "assets/images/calendar.png",
-                      height: 36,
-                      width: 36,
+                  child: _buildCircleIconWithLabel(
+                    icon: const Icon(
+                      Icons.calendar_month,
+                      size: 24,
+                      color: Colors.white,
                     ),
                     label: 'Month Report',
-                    onPressed: () => _NavigateToMonthWiseReport(),
-                    buttonColor: const Color(0xFFEAECFB),
+                    onPressed: _navigateToMonthWiseReport,
                   ),
                 ),
-                   const SizedBox(width: 5),
+                const SizedBox(width: 5),
                 Expanded(
-                  child: _buildCardWithButton(
-                    icon: Image.asset(
-                      "assets/images/usermaster.png",
-                      height: 36,
-                      width: 36,
+                  child: _buildCircleIconWithLabel(
+                    icon: const Icon(
+                      Icons.person,
+                      size: 24,
+                      color: Colors.white,
                     ),
                     label: 'User Reports',
-                    onPressed: () => _NavigateToAllUserWiseReport(),
-                    buttonColor: const Color(0xFFEAECFB),
+                    onPressed: _navigateToAllUserWiseReport,
                   ),
                 ),
               ],
@@ -73,69 +68,56 @@ class _ReportsState extends State<Reports> {
     );
   }
 
-  Widget _buildCardWithButton({
+  Widget _buildCircleIconWithLabel({
     required Widget icon,
     required String label,
     required VoidCallback onPressed,
-    Color? buttonColor,
   }) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        ),
-        child: Padding(
-          padding:const EdgeInsets.all(8.0),
-          child: _buildIconButton(
-            icon: icon, 
-            label: label, 
-            onPressed: onPressed,
-            buttonColor: buttonColor,
-            ),
-        ),
-     );
-  }
-
-  Widget _buildIconButton({
-    required Widget icon,
-    required String label,
-    required VoidCallback onPressed,
-    Color? buttonColor,
-  }) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: buttonColor ?? Colors.blue,
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-      ),
+    return GestureDetector(
+      onTap: onPressed,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          icon,
+          CircleAvatar(
+            backgroundColor: AppColor.primary,
+            radius: 28,
+            child: icon,
+          ),
           const SizedBox(height: 8),
-          Text(label),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 12),
+          ),
         ],
       ),
     );
   }
 
-  void _navigateToCourseNamePage(){
-    Navigator.push(context, 
-    MaterialPageRoute(builder: (context) => CourseWiseReport(),
-    ),
+  void _navigateToCourseNamePage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CourseWiseReport(),
+      ),
     );
   }
-   void _NavigateToMonthWiseReport() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => const MonthWiseReport(),
-    ),
+
+  void _navigateToMonthWiseReport() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const MonthWiseReport(),
+      ),
     );
-   }
-      void _NavigateToAllUserWiseReport() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) =>  AllUserWiseReport(),
-    ),
+  }
+
+  void _navigateToAllUserWiseReport() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AllUserWiseReport(),
+      ),
     );
-   }
+  }
 }
