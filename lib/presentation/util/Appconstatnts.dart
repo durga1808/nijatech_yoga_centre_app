@@ -6,9 +6,9 @@ import 'package:intl/intl.dart';
 
 class AppConstants {
   //static const String LIVE_URL = 'http://192.168.0.103:3000/YogaApp/';
-    //  static const String LOCAL_URL = 'http://nija.ddns.net:93/NewYogaApp/';
+     static const String LOCAL_URL = 'http://nija.ddns.net:93/NewYogaApp/';
 
- static const String LOCAL_URL = 'http://192.168.29.121:3000/YogaApp/';
+//  static const String LOCAL_URL = 'http://192.168.29.121:3000/YogaApp/';
 // static const String LOCAL_URL = 'http://192.168.31.13:3000/YogaApp/';
   //  static const String LOCAL_URL = 'http://192.168.31.13:3000/YogaApp/';
   static const String SESSIONTOKEN = 'Token';
@@ -47,6 +47,7 @@ class AppConstants {
   static const String monthWiseReportuser = 'monthWiseReportuser';
   static const String addmyscore = 'addmyscore';
   static const String addmyvideos = 'addmyvideos';
+  
   
   static List<Color> containerColor = [
     const Color(0xFF1ea4a9),

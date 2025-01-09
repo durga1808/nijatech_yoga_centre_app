@@ -96,7 +96,8 @@ class _MonthWiseReportState extends State<MonthWiseReport> {
     }
   }
 
-  Future<void> _fetchMonthlyReport(int year, String month, String username) async {
+  Future<void> _fetchMonthlyReport(
+      int year, String month, String username) async {
     setState(() => _isLoading = true);
 
     int monthNumber = months.indexOf(month) + 1;
@@ -129,35 +130,51 @@ class _MonthWiseReportState extends State<MonthWiseReport> {
     }
   }
 
- Future<void> _exportToExcel() async {
-  if (model.message == null || model.message!.isEmpty) {
-    _showSnackBar("No data available to export");
-    return;
-  }
+  Future<void> _exportToExcel() async {
+    if (model.message == null || model.message!.isEmpty) {
+      _showSnackBar("No data available to export");
+      return;
+    }
 
-  var excelFile = excel.Excel.createExcel();
-  excel.Sheet sheet = excelFile['MonthWiseReport'];
-  sheet.appendRow(['Course Name', 'Date', 'Occurrence', 'Remarks']);
+    var excelFile = excel.Excel.createExcel();
+    excel.Sheet sheet = excelFile['MonthWiseReport'];
+    sheet.appendRow(['Course Name', 'Date', 'Occurrence', 'Remarks']);
 
-  for (var report in model.message!) {
-    String formattedDate = report?.date != null
-        ? DateFormat("dd/MM/yyyy").format(report!.date!)
-        : "N/A";
-    sheet.appendRow([report?.coursename ?? "N/A", formattedDate, report?.occurance ?? "N/A", report?.remarks ?? "N/A"]);
-  }
+    for (var report in model.message!) {
+      String formattedDate = report?.date != null
+          ? DateFormat("dd/MM/yyyy").format(report!.date!)
+          : "N/A";
+      sheet.appendRow([
+        report?.coursename ?? "N/A",
+        formattedDate,
+        report?.occurance ?? "N/A",
+        report?.remarks ?? "N/A"
+      ]);
+    }
 
-  try {
-    final directory = await getExternalStorageDirectory();
-    final file = File('${directory!.path}/MonthWiseReport.xlsx');
-    await file.writeAsBytes(excelFile.encode()!); // Used 'excelFile' here
-    OpenFile.open(file.path);
-  } catch (e) {
-    _showSnackBar("Error while exporting: $e");
+    try {
+      final directory = await getExternalStorageDirectory();
+      final file = File('${directory!.path}/MonthWiseReport.xlsx');
+      await file.writeAsBytes(excelFile.encode()!); // Used 'excelFile' here
+      OpenFile.open(file.path);
+    } catch (e) {
+      _showSnackBar("Error while exporting: $e");
+    }
   }
-}
 
   void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Future<void> requestStoragePermission() async {
+    final permissionStatus = await Permission.storage.status;
+    if (permissionStatus.isDenied) {
+      await Permission.storage.request();
+    }
+    if (permissionStatus.isPermanentlyDenied) {
+      openAppSettings();
+    }
   }
 
   @override
@@ -174,7 +191,8 @@ class _MonthWiseReportState extends State<MonthWiseReport> {
             InkWell(
               onTap: _showMonthYearPicker,
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.grey),
                   borderRadius: BorderRadius.circular(4),
@@ -196,6 +214,17 @@ class _MonthWiseReportState extends State<MonthWiseReport> {
             const SizedBox(height: 10),
             const Text("Choose Username"),
             const SizedBox(height: 5),
+            // DropdownSearch<String>(
+            //   items: userList,
+            //   selectedItem: _selectedUser,
+            //   onChanged: (value) => setState(() => _selectedUser = value),
+            //   dropdownDecoratorProps: const DropDownDecoratorProps(
+            //     dropdownSearchDecoration: InputDecoration(
+            //       hintText: "Choose a username",
+            //       border: OutlineInputBorder(),
+            //     ),
+            //   ),
+            // ),
             DropdownSearch<String>(
               items: userList,
               selectedItem: _selectedUser,
@@ -206,19 +235,27 @@ class _MonthWiseReportState extends State<MonthWiseReport> {
                   border: OutlineInputBorder(),
                 ),
               ),
+              popupProps: const PopupProps.menu(
+                showSearchBox:
+                    true, 
+              ),
             ),
+
             const SizedBox(height: 10),
             Row(
               children: [
                 ElevatedButton.icon(
                   icon: const Icon(Icons.search, color: Colors.white),
-                  label: const Text("Search", style: TextStyle(color: Colors.white)),
-                  style: ElevatedButton.styleFrom(backgroundColor: AppColor.primary),
+                  label: const Text("Search",
+                      style: TextStyle(color: Colors.white)),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColor.primary),
                   onPressed: () {
                     if (_selectedYear != null &&
                         _selectedMonth != null &&
                         _selectedUser != null) {
-                      _fetchMonthlyReport(_selectedYear!, _selectedMonth!, _selectedUser!);
+                      _fetchMonthlyReport(
+                          _selectedYear!, _selectedMonth!, _selectedUser!);
                     } else {
                       _showSnackBar("All fields are required");
                     }
@@ -227,17 +264,21 @@ class _MonthWiseReportState extends State<MonthWiseReport> {
                 const SizedBox(width: 10),
                 ElevatedButton.icon(
                   icon: const Icon(Icons.file_download, color: Colors.white),
-                  label: const Text("Export to Excel", style: TextStyle(color: Colors.white)),
-                  style: ElevatedButton.styleFrom(backgroundColor: AppColor.primary),
+                  label: const Text("Export to Excel",
+                      style: TextStyle(color: Colors.white)),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColor.primary),
                   onPressed: () async {
-                    final permissionStatus = await Permission.storage.status;
-                    if (permissionStatus.isDenied) {
-                      await Permission.storage.request();
-                    } else if (permissionStatus.isPermanentlyDenied) {
-                      await openAppSettings();
-                    } else {
-                      await _exportToExcel();
-                    }
+                    // final permissionStatus = await Permission.storage.status;
+                    // if (permissionStatus.isDenied) {
+                    //   await Permission.storage.request();
+                    // } else if (permissionStatus.isPermanentlyDenied) {
+                    //   await openAppSettings();
+                    // } else {
+                    //   await _exportToExcel();
+                    // }
+                    await requestStoragePermission();
+                    _exportToExcel();
                   },
                 ),
               ],
@@ -252,37 +293,49 @@ class _MonthWiseReportState extends State<MonthWiseReport> {
                             itemBuilder: (context, index) {
                               final report = model.message?[index];
                               String formattedDate = report?.date != null
-                                  ? DateFormat("dd/MM/yyyy").format(report!.date!)
+                                  ? DateFormat("dd/MM/yyyy")
+                                      .format(report!.date!)
                                   : "N/A";
 
                               return Card(
                                 color: AppColor.primary,
                                 margin: const EdgeInsets.all(16.0),
                                 elevation: 4,
-
                                 child: Padding(
                                   padding: const EdgeInsets.all(16.0),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      Text("Course Name: ${report?.coursename ?? "N/A"}",
-                                      style:TextStyle(fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white
-                                      ),),
+                                      Text(
+                                        "Course Name: ${report?.coursename ?? "N/A"}",
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white),
+                                      ),
                                       SizedBox(height: 10),
-                                      Text("Date: $formattedDate",
-                                      style: TextStyle(fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white),),
+                                      Text(
+                                        "Date: $formattedDate",
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white),
+                                      ),
                                       SizedBox(height: 10),
-                                      Text("Occurrence: ${report?.occurance ?? "N/A"}",
-                                      style: TextStyle(fontSize: 16,
-                                      color: Colors.white),),
+                                      Text(
+                                        "Occurrence: ${report?.occurance ?? "N/A"}",
+                                        style: TextStyle(
+                                            fontSize: 16, color: Colors.white),
+                                      ),
                                       SizedBox(height: 10),
-                                      Text("Remarks: ${report?.remarks ?? "N/A"}",
-                                      style: TextStyle(fontSize: 16,color:  Colors.white,
-                                      ),),
+                                      Text(
+                                        "Remarks: ${report?.remarks ?? "N/A"}",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.white,
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),

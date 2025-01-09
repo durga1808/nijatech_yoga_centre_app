@@ -225,6 +225,17 @@ class _AllUserWiseReportState extends State<AllUserWiseReport> {
         .showSnackBar(SnackBar(content: Text(message)));
   }
 
+  
+  Future<void> requestStoragePermission() async {
+    final permissionStatus = await Permission.storage.status;
+    if (permissionStatus.isDenied) {
+      await Permission.storage.request();
+    }
+    if (permissionStatus.isPermanentlyDenied) {
+      openAppSettings();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -274,6 +285,13 @@ class _AllUserWiseReportState extends State<AllUserWiseReport> {
                   border: OutlineInputBorder(),
                 ),
               ),
+               popupProps: const PopupProps.menu(
+                showSearchBox:
+                    true, 
+
+ 
+
+              ),
             ),
             const SizedBox(height: 10),
             Row(
@@ -303,14 +321,16 @@ class _AllUserWiseReportState extends State<AllUserWiseReport> {
                   style: ElevatedButton.styleFrom(
                       backgroundColor: AppColor.primary),
                   onPressed: () async {
-                    final permissionStatus = await Permission.storage.status;
-                    if (permissionStatus.isDenied) {
-                      await Permission.storage.request();
-                    } else if (permissionStatus.isPermanentlyDenied) {
-                      await openAppSettings();
-                    } else {
-                      await _exportToExcel();
-                    }
+                    // final permissionStatus = await Permission.storage.status;
+                    // if (permissionStatus.isDenied) {
+                    //   await Permission.storage.request();
+                    // } else if (permissionStatus.isPermanentlyDenied) {
+                    //   await openAppSettings();
+                    // } else {
+                    //   await _exportToExcel();
+                    // }
+                      await requestStoragePermission();
+                          _exportToExcel();
                   },
                 ),
               ],

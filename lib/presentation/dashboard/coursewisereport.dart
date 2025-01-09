@@ -30,7 +30,7 @@ class _CourseWiseReport extends State<CourseWiseReport> {
   bool _isLoading = false;
   late CourseModel courseModel;
   late UserModel userModel;
-  MyCourseModel model = MyCourseModel();
+  MyCourseModel? model; // Make model nullable
   String? selectedCourseId;
   String? selectedUserId;
 
@@ -114,6 +114,7 @@ class _CourseWiseReport extends State<CourseWiseReport> {
 
     setState(() {
       _isLoading = true;
+      model = null; // Clear the model to refresh the page
     });
 
     try {
@@ -128,21 +129,34 @@ class _CourseWiseReport extends State<CourseWiseReport> {
             _isLoading = false;
           });
         } else {
-          setState(() {
-            model.message = [];
-            _isLoading = false;
-          });
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content: Text(jsonResponse['message'] ?? "No reports found")),
-          );
+          _showNoDataMessage(jsonResponse['message'] ?? "No reports found");
         }
       } else {
-        _handleNoData();
+        _showNoDataMessage("No data found");
       }
     } catch (e) {
       _handleError(e);
     }
+  }
+
+  void _handleNoData() {
+    setState(() {
+      _isLoading = false;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("No data found")),
+    );
+  }
+
+  void _showNoDataMessage(String message) {
+    setState(() {
+      _isLoading = false;
+      model = null; // Reset the model to null when no data is found
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 
   void _handleError(dynamic e) {
@@ -161,17 +175,12 @@ class _CourseWiseReport extends State<CourseWiseReport> {
     AppUtils.pop(context);
   }
 
-  void _handleNoData() {
-    setState(() {
-      _isLoading = false;
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("No data found")),
-    );
-  }
-
   Future<void> exportToExcel() async {
-    if (model.message == null || model.message!.isEmpty) {
+    // First, request the storage permission
+    await requestStoragePermission();
+
+    // Check if permission is granted before proceeding
+    if (model?.message == null || model!.message!.isEmpty) {
       AppUtils.showSingleDialogPopup(
         context,
         "No data available to export",
@@ -187,7 +196,7 @@ class _CourseWiseReport extends State<CourseWiseReport> {
 
     sheet.appendRow(['Course Name', 'Date', 'Occurrence', 'Remarks']);
 
-    for (var report in model.message!) {
+    for (var report in model!.message!) {
       sheet.appendRow([
         report.coursename,
         report.currentdate,
@@ -202,8 +211,10 @@ class _CourseWiseReport extends State<CourseWiseReport> {
 
       List<int> bytes = excel.encode()!;
 
+      // Write the file
       await file.writeAsBytes(bytes);
 
+      // Open the file after writing it
       OpenFile.open(file.path);
     } catch (e) {
       AppUtils.showSingleDialogPopup(
@@ -212,6 +223,16 @@ class _CourseWiseReport extends State<CourseWiseReport> {
         "Ok",
         exitPopup,
       );
+    }
+  }
+
+  Future<void> requestStoragePermission() async {
+    final permissionStatus = await Permission.storage.status;
+    if (permissionStatus.isDenied) {
+      await Permission.storage.request();
+    }
+    if (permissionStatus.isPermanentlyDenied) {
+      openAppSettings();
     }
   }
 
@@ -267,8 +288,7 @@ class _CourseWiseReport extends State<CourseWiseReport> {
                                       User(id: 0, username: "", mobile: ''),
                                 )
                                 .id
-                                ?.toString() ??
-                            '';
+                                ?.toString() ?? '';
                       });
                     },
                     dropdownDecoratorProps: const DropDownDecoratorProps(
@@ -280,7 +300,7 @@ class _CourseWiseReport extends State<CourseWiseReport> {
                   ),
                   const SizedBox(height: 20),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.start, 
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       ElevatedButton.icon(
                         icon: const Icon(Icons.search, color: Colors.white),
@@ -321,48 +341,38 @@ class _CourseWiseReport extends State<CourseWiseReport> {
                           backgroundColor: AppColor.primary,
                         ),
                         onPressed: () async {
-                          final permissionStatus =
-                              await Permission.storage.status;
-                          if (permissionStatus.isDenied) {
-                            await Permission.storage.request();
-                            if (permissionStatus.isDenied) {
-                              await openAppSettings();
-                            }
-                          } else if (permissionStatus.isPermanentlyDenied) {
-                            await openAppSettings();
-                          } else {
-                            exportToExcel();
-                          }
+                          await requestStoragePermission();
+                          exportToExcel();
                         },
                       ),
                     ],
                   ),
                   const SizedBox(height: 20),
                   Expanded(
-                    child: model.message != null && model.message!.isNotEmpty
+                    child: model?.message != null && model!.message!.isNotEmpty
                         ? ListView.builder(
-                            itemCount: model.message!.length,
+                            itemCount: model?.message?.length ?? 0,
                             itemBuilder: (context, index) {
-                              final report = model.message![index];
+                              var report = model!.message![index];
                               return Card(
                                 color: AppColor.primary,
-                                margin: const EdgeInsets.all(16.0),
-                                elevation: 4,
+                                margin: const EdgeInsets.symmetric(
+                                    vertical: 8, horizontal: 5),
                                 child: Padding(
-                                  padding: const EdgeInsets.all(16.0),
+                                  padding: const EdgeInsets.all(8.0),
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Course: ${report.coursename}',
+                                        'Course Name: ${report.coursename}',
                                         style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
                                           fontSize: 16,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
                                         ),
                                       ),
-                                      const SizedBox(height: 10),
+                                        SizedBox(height: 10),
                                       Text(
                                         'Date: ${report.currentdate}',
                                         style: const TextStyle(
@@ -371,7 +381,7 @@ class _CourseWiseReport extends State<CourseWiseReport> {
                                           color: Colors.white,
                                         ),
                                       ),
-                                      const SizedBox(height: 10),
+                                        SizedBox(height: 10),
                                       Text(
                                         'Occurrence: ${report.occurance}',
                                         style: const TextStyle(
@@ -379,7 +389,7 @@ class _CourseWiseReport extends State<CourseWiseReport> {
                                           color: Colors.white,
                                         ),
                                       ),
-                                      const SizedBox(height: 10),
+                                        SizedBox(height: 10),
                                       Text(
                                         'Remarks: ${report.remarks}',
                                         style: const TextStyle(
@@ -393,9 +403,7 @@ class _CourseWiseReport extends State<CourseWiseReport> {
                               );
                             },
                           )
-                        : const Center(
-                            child: Text("No data available."),
-                          ),
+                        : const Center(child: Text("No data available")),
                   ),
                 ],
               ),
